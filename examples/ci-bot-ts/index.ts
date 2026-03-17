@@ -1,0 +1,51 @@
+/**
+ * CI Bot — posts build notifications via webhook, responds to /status.
+ *
+ * Usage:
+ *   BOT_TOKEN=bot_xxx WEBHOOK_ID=uuid WEBHOOK_SECRET=secret npx tsx index.ts
+ */
+import { RustSlackBot, WebhookBot } from '@rust-slack/sdk'
+
+const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+
+// Webhook bot for posting CI results (no WS needed)
+const webhook = new WebhookBot({
+  webhookId: process.env.WEBHOOK_ID!,
+  webhookSecret: process.env.WEBHOOK_SECRET!,
+  serverUrl,
+})
+
+// Full bot for interactive commands
+const bot = new RustSlackBot({
+  token: process.env.BOT_TOKEN!,
+  serverUrl,
+})
+
+// Track build status
+let lastBuild = { number: 0, status: 'unknown', timestamp: '' }
+
+bot.command('/status', async (cmd, ctx) => {
+  await ctx.respond({
+    responseType: 'ephemeral',
+    text: `Last build: #${lastBuild.number} — ${lastBuild.status} (${lastBuild.timestamp})`,
+  })
+})
+
+bot.command('/deploy', async (cmd, ctx) => {
+  const target = cmd.text || 'production'
+  await ctx.respond({
+    responseType: 'in_channel',
+    text: `🚀 Deploying to ${target}...`,
+  })
+})
+
+// Simulate CI webhook call
+export async function notifyBuild(number: number, status: 'pass' | 'fail') {
+  lastBuild = { number, status, timestamp: new Date().toISOString() }
+  const emoji = status === 'pass' ? '✅' : '❌'
+  await webhook.send(`Build #${number} ${status} ${emoji}`, { username: 'CI Bot' })
+}
+
+bot.start().then(() => {
+  console.log('CI bot is running!')
+})
