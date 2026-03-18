@@ -1,13 +1,13 @@
-import { RustSlackClient } from './client'
+import { KlankClient } from './client'
 import { WsManager } from './ws'
 import type {
   BotConfig, BotContext, BotInfo, CommandContext, CommandEvent, CommandHandler,
   EventHandler, Message, MessageEvent, MessageHandler, Middleware, ServerEvent,
 } from './types'
 
-/** Main bot class — connect to Rust Slack and handle events. */
-export class RustSlackBot {
-  private client: RustSlackClient
+/** Main bot class — connect to Klank and handle events. */
+export class KlankBot {
+  private client: KlankClient
   private ws: WsManager
   private config: BotConfig
   private botInfo: BotInfo | null = null
@@ -20,7 +20,7 @@ export class RustSlackBot {
 
   constructor(config: BotConfig) {
     this.config = { reconnect: true, ...config }
-    this.client = new RustSlackClient(config.serverUrl, config.token)
+    this.client = new KlankClient(config.serverUrl, config.token)
     this.ws = new WsManager(
       config.serverUrl,
       () => this.client.getWsTicket(),
@@ -84,7 +84,7 @@ export class RustSlackBot {
   }
 
   /** Get the low-level REST client. */
-  getClient(): RustSlackClient {
+  getClient(): KlankClient {
     return this.client
   }
 

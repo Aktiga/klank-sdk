@@ -1,21 +1,21 @@
-# Rust Slack Bot SDK
+# Klank Bot SDK
 
-Build bots for [Rust Slack](https://github.com/Aktiga/rust-slack) with TypeScript or Rust. Framework with batteries: event listeners, command routing, message matching, middleware.
+Build bots for [Klank](https://github.com/Aktiga/klank) with TypeScript or Rust. Framework with batteries: event listeners, command routing, message matching, middleware.
 
 ## Quick Start
 
 ### Install
 
 ```bash
-npm install @rust-slack/sdk
+npm install @klank/sdk
 ```
 
 ### Create a Bot
 
 ```typescript
-import { RustSlackBot } from '@rust-slack/sdk'
+import { KlankBot } from '@klank/sdk'
 
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: process.env.BOT_TOKEN!,
   serverUrl: 'http://localhost:3000',
 })
@@ -37,7 +37,7 @@ await bot.start()
 
 ### 1. Register Your Bot
 
-First, register a bot in your Rust Slack workspace:
+First, register a bot in your Klank workspace:
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/workspaces/YOUR_WORKSPACE_ID/bots \
@@ -62,9 +62,9 @@ curl -X POST http://localhost:3000/api/v1/channels/CHANNEL_ID/webhooks \
 ### 3. Write Your Bot
 
 ```typescript
-import { RustSlackBot } from '@rust-slack/sdk'
+import { KlankBot } from '@klank/sdk'
 
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: 'bot_your_token_here',
   serverUrl: 'http://localhost:3000',
 })
@@ -86,14 +86,14 @@ BOT_TOKEN=bot_your_token npx tsx src/index.ts
 
 ## API Reference
 
-### RustSlackBot
+### KlankBot
 
 The main bot class. Connects via WebSocket and routes events to handlers.
 
 ```typescript
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: string,          // Bot API token (bot_...)
-  serverUrl: string,      // Rust Slack server URL
+  serverUrl: string,      // Klank server URL
   reconnect?: boolean,    // Auto-reconnect on disconnect (default: true)
 })
 ```
@@ -170,7 +170,7 @@ bot.onError((err) => {
 Simpler bot that just posts messages via incoming webhook. No WebSocket needed.
 
 ```typescript
-import { WebhookBot } from '@rust-slack/sdk'
+import { WebhookBot } from '@klank/sdk'
 
 const bot = new WebhookBot({
   webhookId: 'uuid-here',
@@ -182,14 +182,14 @@ await bot.send('Build #42 passed! ✅')
 await bot.send('Deploy failed ❌', { username: 'CI Bot' })
 ```
 
-### RustSlackClient
+### KlankClient
 
 Low-level typed REST client for direct API access:
 
 ```typescript
-import { RustSlackClient } from '@rust-slack/sdk'
+import { KlankClient } from '@klank/sdk'
 
-const client = new RustSlackClient('http://localhost:3000', 'bot_token')
+const client = new KlankClient('http://localhost:3000', 'bot_token')
 
 // Bot info
 const info = await client.getBotInfo()
@@ -214,7 +214,7 @@ const channel = await client.getChannel(channelId)
 Echoes every message back and reacts to greetings:
 
 ```typescript
-const bot = new RustSlackBot({ token, serverUrl })
+const bot = new KlankBot({ token, serverUrl })
 
 bot.on('message', async (event, ctx) => {
   if (event.plaintext) {
@@ -248,7 +248,7 @@ async function notifyBuild(status: 'pass' | 'fail', buildNum: number) {
 Responds to /status and posts periodic updates:
 
 ```typescript
-const bot = new RustSlackBot({ token, serverUrl })
+const bot = new KlankBot({ token, serverUrl })
 
 bot.command('/status', async (cmd, ctx) => {
   const uptime = process.uptime()
@@ -284,7 +284,7 @@ E2EE key events (`keys.*`) are not exposed to bots.
 
 ## Server Compatibility
 
-Requires [Rust Slack](https://github.com/Aktiga/rust-slack) server with bot support (commit `d7c956c` or later).
+Requires [Klank](https://github.com/Aktiga/klank) server with bot support (commit `d7c956c` or later).
 
 ## License
 

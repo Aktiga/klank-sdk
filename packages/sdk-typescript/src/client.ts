@@ -1,7 +1,7 @@
 import type { BotInfo, Channel, Message } from './types'
 
-/** Low-level REST API client for Rust Slack. */
-export class RustSlackClient {
+/** Low-level REST API client for Klank. */
+export class KlankClient {
   private baseUrl: string
   private token: string
 

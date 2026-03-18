@@ -1,7 +1,7 @@
 {
-  "name": "@rust-slack/sdk",
+  "name": "@klank/sdk",
   "version": "0.1.0",
-  "description": "Bot SDK for Rust Slack — build bots with event listeners, command routing, and more",
+  "description": "Bot SDK for Klank — build bots with event listeners, command routing, and more",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -26,10 +26,10 @@
     "@types/ws": "^8.0.0",
     "vitest": "^3.0.0"
   },
-  "keywords": ["rust-slack", "bot", "sdk", "chat", "messaging"],
+  "keywords": ["klank", "bot", "sdk", "chat", "messaging"],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Aktiga/rust-slack-sdk"
+    "url": "https://github.com/Aktiga/klank-sdk"
   }
 }

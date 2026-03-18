@@ -5,7 +5,7 @@
  * Usage:
  *   WEBHOOK_ID=uuid WEBHOOK_SECRET=secret npx tsx index.ts
  */
-import { WebhookBot } from '@rust-slack/sdk'
+import { WebhookBot } from '@klank/sdk'
 
 const bot = new WebhookBot({
   webhookId: process.env.WEBHOOK_ID!,

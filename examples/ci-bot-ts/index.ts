@@ -4,7 +4,7 @@
  * Usage:
  *   BOT_TOKEN=bot_xxx WEBHOOK_ID=uuid WEBHOOK_SECRET=secret npx tsx index.ts
  */
-import { RustSlackBot, WebhookBot } from '@rust-slack/sdk'
+import { KlankBot, WebhookBot } from '@klank/sdk'
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 
@@ -16,7 +16,7 @@ const webhook = new WebhookBot({
 })
 
 // Full bot for interactive commands
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: process.env.BOT_TOKEN!,
   serverUrl,
 })

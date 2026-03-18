@@ -1,6 +1,6 @@
-import { RustSlackBot } from '@rust-slack/sdk'
+import { KlankBot } from '@klank/sdk'
 
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: process.env.BOT_TOKEN!,
   serverUrl: process.env.SERVER_URL || 'http://localhost:3000',
 })

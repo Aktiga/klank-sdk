@@ -1,10 +1,10 @@
 # Getting Started
 
-Build your first Rust Slack bot in 5 minutes.
+Build your first Klank bot in 5 minutes.
 
 ## Prerequisites
 
-- A running [Rust Slack](https://github.com/Aktiga/rust-slack) server
+- A running [Klank](https://github.com/Aktiga/klank) server
 - A registered bot with an API token (see below)
 - Node.js 22+ (for TypeScript) or Rust 1.94+ (for Rust)
 
@@ -34,7 +34,7 @@ Save the `api_token` — it starts with `bot_` and is only shown once.
 ```bash
 mkdir my-bot && cd my-bot
 npm init -y
-npm install @rust-slack/sdk
+npm install @klank/sdk
 npm install -D typescript tsx
 ```
 
@@ -43,9 +43,9 @@ npm install -D typescript tsx
 Create `src/index.ts`:
 
 ```typescript
-import { RustSlackBot } from '@rust-slack/sdk'
+import { KlankBot } from '@klank/sdk'
 
-const bot = new RustSlackBot({
+const bot = new KlankBot({
   token: process.env.BOT_TOKEN!,
   serverUrl: process.env.SERVER_URL || 'http://localhost:3000',
 })
@@ -109,7 +109,7 @@ BOT_TOKEN=bot_your_token SERVER_URL=http://localhost:3000 cargo run
 If you just need to post messages (no event listening):
 
 ```typescript
-import { WebhookBot } from '@rust-slack/sdk'
+import { WebhookBot } from '@klank/sdk'
 
 const bot = new WebhookBot({
   webhookId: process.env.WEBHOOK_ID!,

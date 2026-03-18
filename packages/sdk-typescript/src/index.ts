@@ -1,4 +1,4 @@
-export { RustSlackBot } from './bot'
+export { KlankBot } from './bot'
 export { WebhookBot } from './webhook'
-export { RustSlackClient } from './client'
+export { KlankClient } from './client'
 export type * from './types'

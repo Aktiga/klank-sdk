@@ -19,13 +19,13 @@ CMD ["node", "dist/index.js"]
 docker build -t my-bot .
 docker run -d \
   -e BOT_TOKEN=bot_xxx \
-  -e SERVER_URL=http://rust-slack-server:3000 \
+  -e SERVER_URL=http://klank-server:3000 \
   --name my-bot \
   --restart unless-stopped \
   my-bot
 ```
 
-Add to your `docker-compose.yml` alongside the Rust Slack server:
+Add to your `docker-compose.yml` alongside the Klank server:
 
 ```yaml
 services:
@@ -53,7 +53,7 @@ pm2 startup  # Auto-start on reboot
 ```ini
 # /etc/systemd/system/my-bot.service
 [Unit]
-Description=My Rust Slack Bot
+Description=My Klank Bot
 After=network.target
 
 [Service]
@@ -83,7 +83,7 @@ For `WebhookBot` (no WebSocket), you can use serverless:
 - **Google Cloud Functions**
 - **Vercel Edge Functions**
 
-These only work for webhook-based bots that POST messages in response to external events (CI, monitoring). They can't listen for Rust Slack events.
+These only work for webhook-based bots that POST messages in response to external events (CI, monitoring). They can't listen for Klank events.
 
 ## Rust Bots
 
@@ -105,7 +105,7 @@ CMD ["my-bot"]
 docker build -t my-bot .
 docker run -d \
   -e BOT_TOKEN=bot_xxx \
-  -e SERVER_URL=http://rust-slack-server:3000 \
+  -e SERVER_URL=http://klank-server:3000 \
   --name my-bot \
   --restart unless-stopped \
   my-bot
@@ -127,13 +127,13 @@ Use systemd (same pattern as TS above) for auto-restart.
 
 ```toml
 # fly.toml
-app = "my-rust-slack-bot"
+app = "my-klank-bot"
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
-  SERVER_URL = "https://your-rust-slack.example.com"
+  SERVER_URL = "https://your-klank.example.com"
 
 # Set BOT_TOKEN as a secret:
 # fly secrets set BOT_TOKEN=bot_xxx
@@ -148,7 +148,7 @@ fly deploy
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `BOT_TOKEN` | Yes (WS bots) | Bot API token from registration (`bot_...`) |
-| `SERVER_URL` | Yes | Rust Slack server URL (e.g., `http://localhost:3000`) |
+| `SERVER_URL` | Yes | Klank server URL (e.g., `http://localhost:3000`) |
 | `WEBHOOK_ID` | For webhooks | Incoming webhook UUID |
 | `WEBHOOK_SECRET` | For webhooks | Webhook secret |
 
@@ -187,7 +187,7 @@ docker logs my-bot 2>&1 | tee /var/log/my-bot.log
 
 ## Network Requirements
 
-- Bot must be able to reach the Rust Slack server via HTTP/HTTPS
+- Bot must be able to reach the Klank server via HTTP/HTTPS
 - WebSocket connection on the same port as the REST API
 - No inbound ports needed (bot connects outbound to server)
 - If using slash commands without WebSocket, the server needs to reach the bot's HTTP endpoint
