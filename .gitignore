@@ -3,3 +3,6 @@ dist/
 target/
 .env
 *.lock
+*.tsbuildinfo
+.turbo
+*.tgz
