@@ -193,4 +193,100 @@ REQ-IDs are stable. Each maps to exactly one phase in ROADMAP.md.
 
 ## Traceability
 
-*Populated by roadmapper agent.*
+*Populated by roadmapper agent 2026-04-07. Coverage: 93/93 v1 requirements mapped.*
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| HOUSE-01 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-02 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-03 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-04 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-05 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-06 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-07 | Phase 1: Workspace Bootstrap | Pending |
+| HOUSE-08 | Phase 1: Workspace Bootstrap | Pending |
+| MIG-01 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-02 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-03 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-04 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-05 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-06 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-07 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-08 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-09 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-10 | Phase 2: Migration to 0.2.0 | Pending |
+| MIG-11 | Phase 2: Migration to 0.2.0 | Pending |
+| HONEST-01 | Phase 2: Migration to 0.2.0 | Pending |
+| HONEST-02 | Phase 2: Migration to 0.2.0 | Pending |
+| HONEST-03 | Phase 2: Migration to 0.2.0 | Pending |
+| HONEST-04 | Phase 2: Migration to 0.2.0 | Pending |
+| SCHEMA-01 | Phase 3: Schema Pipeline | Pending |
+| SCHEMA-02 | Phase 3: Schema Pipeline | Pending |
+| SCHEMA-03 | Phase 3: Schema Pipeline | Pending |
+| SCHEMA-04 | Phase 3: Schema Pipeline | Pending |
+| SCHEMA-05 | Phase 3: Schema Pipeline | Pending |
+| PA-01 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-02 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-03 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-04 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-05 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-06 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-07 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-08 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-09 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-10 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-11 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-12 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PA-13 | Phase 4: Phase A — Typed Context & Ergonomics | Pending |
+| PB-01 | Phase 5: Phase B — HTTP Slash Receivers | Pending |
+| PB-02 | Phase 5: Phase B — HTTP Slash Receivers | Pending |
+| PB-03 | Phase 5: Phase B — HTTP Slash Receivers | Pending |
+| PB-04 | Phase 5: Phase B — HTTP Slash Receivers | Pending |
+| PE-01 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| PE-02 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| PE-03 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| PE-04 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| PE-05 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| PE-06 | Phase 6: Phase E — MockKlank Test Kit | Pending |
+| ROT-01 | Phase 7: Token Rotation | Pending |
+| ROT-02 | Phase 7: Token Rotation | Pending |
+| ROT-03 | Phase 7: Token Rotation | Pending |
+| PC-01 | Phase 8: Phase C — State Backends Split | Pending |
+| PC-02 | Phase 8: Phase C — State Backends Split | Pending |
+| PC-03 | Phase 8: Phase C — State Backends Split | Pending |
+| PC-04 | Phase 8: Phase C — State Backends Split | Pending |
+| PC-05 | Phase 8: Phase C — State Backends Split | Pending |
+| PC-06 | Phase 8: Phase C — State Backends Split | Pending |
+| PG-01 | Phase 9: Phase G — Templates & Scaffolder | Pending |
+| PG-02 | Phase 9: Phase G — Templates & Scaffolder | Pending |
+| PG-03 | Phase 9: Phase G — Templates & Scaffolder | Pending |
+| PG-04 | Phase 9: Phase G — Templates & Scaffolder | Pending |
+| PG-05 | Phase 9: Phase G — Templates & Scaffolder | Pending |
+| PH-01 | Phase 10: Phase H — Docs & Typedoc | Pending |
+| PH-02 | Phase 10: Phase H — Docs & Typedoc | Pending |
+| PH-03 | Phase 10: Phase H — Docs & Typedoc | Pending |
+| PH-04 | Phase 10: Phase H — Docs & Typedoc | Pending |
+| PD-01 | Phase 11: Phase D — Dev CLI | Pending |
+| PD-02 | Phase 11: Phase D — Dev CLI | Pending |
+| PD-03 | Phase 11: Phase D — Dev CLI | Pending |
+| PD-04 | Phase 11: Phase D — Dev CLI | Pending |
+| PI-01 | Phase 12: Phase I — MCP Server | Pending |
+| PI-02 | Phase 12: Phase I — MCP Server | Pending |
+| PI-03 | Phase 12: Phase I — MCP Server | Pending |
+| PI-04 | Phase 12: Phase I — MCP Server | Pending |
+| F2EE-01 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-02 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-03 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-04 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-05 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-06 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-07 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-08 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-09 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| F2EE-10 | Phase 13: Phase F-E2EE — MLS for Bots | Pending |
+| FBUILD-01 | Phase 14: Phase F-build — Rust Crate | Pending |
+| FBUILD-02 | Phase 14: Phase F-build — Rust Crate | Pending |
+| FBUILD-03 | Phase 14: Phase F-build — Rust Crate | Pending |
+| FBUILD-04 | Phase 14: Phase F-build — Rust Crate | Pending |
+| FBUILD-05 | Phase 14: Phase F-build — Rust Crate | Pending |
+| FBUILD-06 | Phase 14: Phase F-build — Rust Crate | Pending |
