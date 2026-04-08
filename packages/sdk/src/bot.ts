@@ -109,7 +109,9 @@ export class KlankBot {
       const next = async () => {
         if (middlewareIndex < this.middlewares.length) {
           const mw = this.middlewares[middlewareIndex++]
-          await mw(event, ctx, next)
+          if (mw) {
+            await mw(event, ctx, next)
+          }
         }
       }
       if (this.middlewares.length > 0) {
