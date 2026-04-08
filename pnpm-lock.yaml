@@ -24,6 +24,36 @@ importers:
         specifier: ^5.6.0
         version: 5.9.3
 
+  examples/ci-bot-ts:
+    dependencies:
+      '@klank/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+
+  examples/echo-bot-ts:
+    dependencies:
+      '@klank/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+
+  examples/webhook-bot:
+    dependencies:
+      '@klank/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+
   packages/sdk:
     dependencies:
       ws:
