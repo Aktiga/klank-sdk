@@ -1,4 +1,4 @@
-export { KlankBot } from './bot'
-export { WebhookBot } from './webhook'
-export { KlankClient } from './client'
-export type * from './types'
+export { KlankBot } from './bot.js'
+export { WebhookBot } from './webhook.js'
+export { KlankClient } from './client.js'
+export type * from './types.js'

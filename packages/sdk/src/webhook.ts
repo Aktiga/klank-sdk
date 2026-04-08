@@ -1,4 +1,4 @@
-import type { WebhookConfig } from './types'
+import type { WebhookConfig } from './types.js'
 
 /** Simple webhook bot — just POST messages to a channel via incoming webhook. */
 export class WebhookBot {

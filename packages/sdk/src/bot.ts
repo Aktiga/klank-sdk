@@ -1,4 +1,4 @@
-import { KlankClient } from './client'
+import { KlankClient } from './client.js'
 import type {
   BotConfig,
   BotContext,
@@ -11,8 +11,8 @@ import type {
   MessageHandler,
   Middleware,
   ServerEvent,
-} from './types'
-import { WsManager } from './ws'
+} from './types.js'
+import { WsManager } from './ws.js'
 
 /** Main bot class — connect to Klank and handle events. */
 export class KlankBot {

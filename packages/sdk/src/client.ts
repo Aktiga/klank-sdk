@@ -1,4 +1,4 @@
-import type { BotInfo, Channel, Message } from './types'
+import type { BotInfo, Channel, Message } from './types.js'
 
 /** Low-level REST API client for Klank. */
 export class KlankClient {

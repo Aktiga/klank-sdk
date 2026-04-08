@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import type { ServerEvent } from './types'
+import type { ServerEvent } from './types.js'
 
 export type WsEventCallback = (event: ServerEvent) => void
 
