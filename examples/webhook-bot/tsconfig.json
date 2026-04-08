@@ -7,7 +7,5 @@
     "composite": true
   },
   "include": ["*.ts", "src/**/*.ts"],
-  "references": [
-    { "path": "../../packages/sdk/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../../packages/sdk/tsconfig.build.json" }]
 }

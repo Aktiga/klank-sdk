@@ -1,9 +1,18 @@
 import { KlankClient } from './client'
-import { WsManager } from './ws'
 import type {
-  BotConfig, BotContext, BotInfo, CommandContext, CommandEvent, CommandHandler,
-  EventHandler, Message, MessageEvent, MessageHandler, Middleware, ServerEvent,
+  BotConfig,
+  BotContext,
+  BotInfo,
+  CommandContext,
+  CommandEvent,
+  CommandHandler,
+  EventHandler,
+  MessageEvent,
+  MessageHandler,
+  Middleware,
+  ServerEvent,
 } from './types'
+import { WsManager } from './ws'
 
 /** Main bot class — connect to Klank and handle events. */
 export class KlankBot {
@@ -69,7 +78,7 @@ export class KlankBot {
     console.log(`[bot] ${this.botInfo.name} starting (workspace: ${this.botInfo.workspace_id})`)
 
     await this.ws.connect()
-    console.log(`[bot] Connected to WebSocket`)
+    console.log('[bot] Connected to WebSocket')
 
     // Handle shutdown signals
     const shutdown = () => this.stop()
@@ -98,7 +107,10 @@ export class KlankBot {
   private async handleEvent(event: ServerEvent): Promise<void> {
     try {
       // Skip self-messages
-      if (event.type === 'message.new' && (event as MessageEvent).sender_id === this.botInfo?.bot_id) {
+      if (
+        event.type === 'message.new' &&
+        (event as MessageEvent).sender_id === this.botInfo?.bot_id
+      ) {
         return
       }
 
@@ -173,8 +185,10 @@ export class KlankBot {
   }
 
   private buildContext(event: ServerEvent): BotContext {
-    const channelId = 'channel_id' in event ? (event as any).channel_id : undefined
-    const messageId = 'message_id' in event ? (event as any).message_id : undefined
+    const channelId =
+      'channel_id' in event ? (event as { channel_id: string }).channel_id : undefined
+    const messageId =
+      'message_id' in event ? (event as { message_id: string }).message_id : undefined
 
     return {
       say: async (text: string) => {

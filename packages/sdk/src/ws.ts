@@ -43,7 +43,9 @@ export class WsManager {
           for (const cb of this.listeners) {
             cb(event)
           }
-        } catch { /* ignore parse errors */ }
+        } catch {
+          /* ignore parse errors */
+        }
       })
 
       this.ws.on('close', () => {

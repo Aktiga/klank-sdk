@@ -1,7 +1,10 @@
 import { KlankBot } from '@klank/sdk'
 
+const token = process.env.BOT_TOKEN
+if (!token) throw new Error('BOT_TOKEN is required')
+
 const bot = new KlankBot({
-  token: process.env.BOT_TOKEN!,
+  token,
   serverUrl: process.env.SERVER_URL || 'http://localhost:3000',
 })
 

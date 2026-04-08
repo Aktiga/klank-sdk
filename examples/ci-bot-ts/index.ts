@@ -8,16 +8,23 @@ import { KlankBot, WebhookBot } from '@klank/sdk'
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 
+const webhookId = process.env.WEBHOOK_ID
+const webhookSecret = process.env.WEBHOOK_SECRET
+const botToken = process.env.BOT_TOKEN
+if (!webhookId) throw new Error('WEBHOOK_ID is required')
+if (!webhookSecret) throw new Error('WEBHOOK_SECRET is required')
+if (!botToken) throw new Error('BOT_TOKEN is required')
+
 // Webhook bot for posting CI results (no WS needed)
 const webhook = new WebhookBot({
-  webhookId: process.env.WEBHOOK_ID!,
-  webhookSecret: process.env.WEBHOOK_SECRET!,
+  webhookId,
+  webhookSecret,
   serverUrl,
 })
 
 // Full bot for interactive commands
 const bot = new KlankBot({
-  token: process.env.BOT_TOKEN!,
+  token: botToken,
   serverUrl,
 })
 

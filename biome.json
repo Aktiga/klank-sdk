@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": ["**/dist/**", "**/node_modules/**", "**/*.tsbuildinfo", "**/pnpm-lock.yaml", "examples/echo-bot-rust/**"]
+    "ignore": [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/*.tsbuildinfo",
+      "**/pnpm-lock.yaml",
+      "examples/echo-bot-rust/**"
+    ]
   },
   "formatter": {
     "enabled": true,

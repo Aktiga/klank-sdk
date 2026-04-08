@@ -23,8 +23,8 @@ export class KlankClient {
 
     // Rate limit handling with backoff
     if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get('Retry-After') || '1', 10)
-      await new Promise(r => setTimeout(r, retryAfter * 1000))
+      const retryAfter = Number.parseInt(res.headers.get('Retry-After') || '1', 10)
+      await new Promise((r) => setTimeout(r, retryAfter * 1000))
       return this.fetch(path, options)
     }
 
@@ -34,7 +34,9 @@ export class KlankClient {
   private async json<T>(path: string, options?: RequestInit): Promise<T> {
     const res = await this.fetch(path, options)
     if (!res.ok) {
-      const err = (await res.json().catch(() => ({ message: res.statusText }))) as { message?: string }
+      const err = (await res.json().catch(() => ({ message: res.statusText }))) as {
+        message?: string
+      }
       throw new Error(`API error ${res.status}: ${err.message ?? res.statusText}`)
     }
     const body = await res.text()
@@ -54,7 +56,11 @@ export class KlankClient {
 
   // ── Messages ──
 
-  async sendMessage(channelId: string, text: string, options?: { threadId?: string }): Promise<Message> {
+  async sendMessage(
+    channelId: string,
+    text: string,
+    options?: { threadId?: string },
+  ): Promise<Message> {
     return this.json(`/channels/${channelId}/messages`, {
       method: 'POST',
       body: JSON.stringify({
@@ -66,7 +72,10 @@ export class KlankClient {
     })
   }
 
-  async getMessages(channelId: string, limit = 50): Promise<{ items: Message[]; next_cursor: string | null }> {
+  async getMessages(
+    channelId: string,
+    limit = 50,
+  ): Promise<{ items: Message[]; next_cursor: string | null }> {
     return this.json(`/channels/${channelId}/messages?limit=${limit}`)
   }
 

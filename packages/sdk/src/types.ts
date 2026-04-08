@@ -154,5 +154,13 @@ export interface CommandContext {
 
 export type EventHandler<E = ServerEvent> = (event: E, ctx: BotContext) => Promise<void> | void
 export type CommandHandler = (cmd: CommandEvent, ctx: CommandContext) => Promise<void> | void
-export type MessageHandler = (event: MessageEvent, ctx: BotContext, matches: RegExpMatchArray) => Promise<void> | void
-export type Middleware = (event: ServerEvent, ctx: BotContext, next: () => Promise<void>) => Promise<void> | void
+export type MessageHandler = (
+  event: MessageEvent,
+  ctx: BotContext,
+  matches: RegExpMatchArray,
+) => Promise<void> | void
+export type Middleware = (
+  event: ServerEvent,
+  ctx: BotContext,
+  next: () => Promise<void>,
+) => Promise<void> | void

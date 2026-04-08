@@ -7,9 +7,14 @@
  */
 import { WebhookBot } from '@klank/sdk'
 
+const webhookId = process.env.WEBHOOK_ID
+const webhookSecret = process.env.WEBHOOK_SECRET
+if (!webhookId) throw new Error('WEBHOOK_ID is required')
+if (!webhookSecret) throw new Error('WEBHOOK_SECRET is required')
+
 const bot = new WebhookBot({
-  webhookId: process.env.WEBHOOK_ID!,
-  webhookSecret: process.env.WEBHOOK_SECRET!,
+  webhookId,
+  webhookSecret,
   serverUrl: process.env.SERVER_URL || 'http://localhost:3000',
 })
 

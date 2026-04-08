@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { KlankBot, KlankClient, WebhookBot } from '@klank/sdk'
+import { describe, expect, it } from 'vitest'
 
 describe('@klank/sdk public surface (built dist)', () => {
   it('exports KlankBot as a constructor', () => {
