@@ -8,6 +8,6 @@
   },
   "include": ["*.ts", "src/**/*.ts"],
   "references": [
-    { "path": "../../packages/sdk" }
+    { "path": "../../packages/sdk/tsconfig.build.json" }
   ]
 }

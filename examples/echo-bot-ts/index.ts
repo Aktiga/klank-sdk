@@ -7,7 +7,7 @@ const bot = new KlankBot({
 
 // Echo every message back
 bot.on('message', async (event, ctx) => {
-  if (event.plaintext) {
+  if (event.type === 'message.new' && event.plaintext) {
     await ctx.say(`Echo: ${event.plaintext}`)
   }
 })

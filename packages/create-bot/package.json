@@ -1,5 +1,5 @@
 {
-  "name": "@klank-examples/ci-bot-ts",
+  "name": "@klank/create-bot",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,11 +7,7 @@
   "scripts": {
     "typecheck": "tsc -b"
   },
-  "dependencies": {
-    "@klank/sdk": "workspace:*"
-  },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "typescript": "^5.6.0"
   }
 }
