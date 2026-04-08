@@ -34,11 +34,11 @@ export class KlankClient {
   private async json<T>(path: string, options?: RequestInit): Promise<T> {
     const res = await this.fetch(path, options)
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }))
-      throw new Error(`API error ${res.status}: ${err.message}`)
+      const err = (await res.json().catch(() => ({ message: res.statusText }))) as { message?: string }
+      throw new Error(`API error ${res.status}: ${err.message ?? res.statusText}`)
     }
     const body = await res.text()
-    return body ? JSON.parse(body) : undefined
+    return (body ? JSON.parse(body) : undefined) as T
   }
 
   // ── Bot Info ──

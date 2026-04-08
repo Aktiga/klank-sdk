@@ -24,8 +24,8 @@ export class WebhookBot {
     )
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }))
-      throw new Error(`Webhook error ${res.status}: ${err.message}`)
+      const err = (await res.json().catch(() => ({ message: res.statusText }))) as { message?: string }
+      throw new Error(`Webhook error ${res.status}: ${err.message ?? res.statusText}`)
     }
   }
 }
