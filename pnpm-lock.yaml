@@ -24,7 +24,7 @@ importers:
         specifier: ^5.6.0
         version: 5.9.3
 
-  packages/sdk-typescript:
+  packages/sdk:
     dependencies:
       ws:
         specifier: ^8.0.0
