@@ -65,7 +65,7 @@ The Klank Bot SDK is the official bot-building toolkit for Klank (the E2EE Slack
 
 ## Constraints
 
-- **Tech stack**: Node 18+, TypeScript, `tsup` bundler, `ws` lib. Keep core dependency-light — adapters (Redis, SQLite) ship as separate packages.
+- **Tech stack**: Node 20+, TypeScript, `tsup` bundler, `ws` lib. Keep core dependency-light — adapters (Redis, SQLite) ship as separate packages.
 - **Compatibility**: every SDK release must declare a tested server commit in README `Server Compatibility`.
 - **Security**: no secrets in bodies, HMAC verification is constant-time, bot tokens are one-shot.
 - **Testing integrity** (per `~/.claude/CLAUDE.md`): tests must exercise real behavior. No skipping for missing data, no mock-to-uselessness, no force-clicks.
