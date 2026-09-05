@@ -1,109 +1,61 @@
 ---
 gsd_state_version: 1.0
 milestone: v0.2
-milestone_name: milestone
-status: unknown
-last_updated: "2026-04-08T00:00:31.438Z"
+milestone_name: webhook-first-release
+status: in_progress
+last_updated: "2026-09-05"
 progress:
-  total_phases: 14
-  completed_phases: 0
-  total_plans: 4
-  completed_plans: 1
-  percent: 25
+  total_phases: 6
+  completed_phases: 1
+  total_plans: 0
+  completed_plans: 0
+  percent: 17
 ---
 
-# Project State — Klank SDK Refresh
+# Project State — Klank SDK
 
-*Last updated: 2026-04-07 by roadmapper agent*
-
----
+*Last updated: 2026-09-05 (stocktake + 0.2.0 release push)*
 
 ## Project Reference
 
-**Project**: Klank Bot SDK (`@klank/sdk`)
+**Project**: Klank Bot SDK (`@klank/sdk`) — repo `Aktiga/klank-sdk`; local dir `~/Sites/rust-slack-sdk` is a legacy name.
+**Server**: `Aktiga/klank` (private; issues disabled). No local checkout as of 2026-09-05.
 **Core Value**: Bots are first-class Klank citizens — including inside E2EE channels.
-**Current Milestone**: v0.2 → v0.4 SDK Refresh (staged 0.2.0 migration → 0.3.0 features → 0.4.0 E2EE + Rust)
-**Current Focus**: Pre-Phase 1 — roadmap approved, ready to plan Phase 1 (Workspace Bootstrap)
+**Revenue model context**: Klank is open source — install yourself, or pay Aktiga to run it. The SDK is MIT and must work identically against both.
 
----
+## Ground truth (verified 2026-09-05 against server `53d464a`)
+
+- `@klank/sdk` has never been published. No users, no compat burden.
+- Bot tokens are accepted only by `GET /auth/bot-info` and `POST /auth/bot-ws-ticket`. Every channel/message/reaction route is JWT-only → 401 for bots.
+- Bots have no channel membership model (`channel_members.user_id` FK → `users`) → the bot WebSocket receives zero events.
+- `command.invoked` does not exist; `slash_commands::dispatch` has no caller.
+- Incoming webhooks: HMAC headers required; plaintext into E2EE channels rejected (400).
+- `DELETE /workspaces/{wid}/bots/{bid}` exists. No token rotation, no webhook delete, no OpenAPI.
+
+Full handoff: `docs/server-requirements.md`.
 
 ## Current Position
 
-Phase: 01 (workspace-bootstrap) — EXECUTING
-Plan: 1 of 4
-**Milestone**: v0.2 → v0.4 SDK Refresh
-**Phase**: Pre-Phase 1 (not started)
-**Plan**: —
-**Status**: Roadmap created; awaiting `/gsd-plan-phase 1`
-**Progress**: `[░░░░░░░░░░░░░░] 0/14 phases`
+Phase 1 (workspace bootstrap) complete; first CI run happened 2026-09-05 (tarball gate fixed for Linux `sort`).
+Phase 2 (0.2.0 webhook-first release) executing on branch `release/0.2.0`.
 
-### Phase Summary
+## Phases (revised 2026-09-05)
 
-| Phase | Name | Status |
-|-------|------|--------|
-| 1  | Workspace Bootstrap              | Not started |
-| 2  | Migration to 0.2.0               | Not started |
-| 3  | Schema Pipeline                  | Not started |
-| 4  | Phase A — Typed Context          | Not started |
-| 5  | Phase B — HTTP Slash Receivers   | Not started |
-| 6  | Phase E — MockKlank Test Kit     | Not started |
-| 7  | Token Rotation                   | Not started |
-| 8  | Phase C — State Backends Split   | Not started |
-| 9  | Phase G — Templates & Scaffolder | Not started |
-| 10 | Phase H — Docs & Typedoc         | Not started |
-| 11 | Phase D — Dev CLI                | Not started |
-| 12 | Phase I — MCP Server             | Not started |
-| 13 | Phase F-E2EE — MLS for Bots      | Not started |
-| 14 | Phase F-build — Rust Crate       | Not started |
+| # | Phase | Status |
+|---|-------|--------|
+| 1 | Workspace bootstrap | Done |
+| 2 | 0.2.0 webhook-first release (HMAC webhook, error taxonomy, slash verifier, retry policy, WS hardening, typed events, honest docs, release workflow) | Executing |
+| 3 | Server bot model in `Aktiga/klank` (see `docs/server-requirements.md`) — bot tokens on channel routes, bot channel membership + WS subscriptions, slash delivery | Not started (blocks 4) |
+| 4 | 0.3.0: end-to-end `KlankBot` against the new server; `MockKlank` test kit; wire-fixture drift gate; `create-klank-bot` templates | Blocked on 3 |
+| 5 | Token rotation + webhook delete/rotate (server) + SDK methods | Not started |
+| 6 | E2EE bots (MLS) and Rust crate | Not started |
 
----
+## Open decisions
 
-## Performance Metrics
+- Bot channel scoping: implicit all-workspace-channels vs explicit `bot_channel_members` (recommended). Product call needed before Phase 3.
+- Whether bots have presence.
+- Trusted Publishing: after the first npm publish, configure OIDC on npmjs.com and delete `NPM_TOKEN`.
 
-- Phases completed: 0/14
-- Release markers hit: 0/3 (0.2.0, 0.3.0, 0.4.0)
-- Requirements shipped: 0/93
+## Publishing
 
----
-
-## Accumulated Context
-
-### Key Decisions (from PROJECT.md, locked 2026-04-07)
-
-- **E2EE bots**: Option B — full MLS, bots become first-class E2EE members
-- **Rust SDK**: Drop false claim now, build later as dedicated Phase 14
-- **Type generation**: `utoipa` (server) + `openapi-typescript` (SDK), no hand-written drift
-- **State backends**: Split across sibling packages (`@klank/sdk-redis`, `@klank/sdk-sqlite`), core stays dep-light
-- **Token rotation**: Server endpoint ships before SDK 0.3 (Phase 7)
-- **Self-message suppression**: Track `webhook_id` alongside `bot_id` (Phase 4 / PA-08)
-
-### Open Todos
-
-- Plan and execute Phase 1 (Workspace Bootstrap) — blocks all other phases
-- Coordinate cross-repo work with `rust-slack` for Phases 3, 7, 13
-
-### Blockers
-
-None currently. Phase 13 (F-E2EE) has a planned research spike (F2EE-01) that must run before phase planning.
-
----
-
-## Quick Tasks Completed
-
-| Date       | ID         | Title                                                | Commits                   |
-|------------|------------|------------------------------------------------------|---------------------------|
-| 2026-04-07 | 260407-ssg | Close Phase 01 CI gate gaps (lint + attw + tarball)  | a902b4c, 6831dbe, 0221c9a |
-
-## Session Continuity
-
-**Last session**: 2026-04-07 — `/gsd-new-project` completed, requirements captured, research synthesized, roadmap created
-**Next action**: Run `/gsd-plan-phase 1` to begin Workspace Bootstrap
-
-### Files of Record
-
-- `.planning/PROJECT.md` — project vision and constraints
-- `.planning/REQUIREMENTS.md` — 93 v1 requirements with phase traceability
-- `.planning/ROADMAP.md` — 14-phase plan with success criteria
-- `.planning/research/SUMMARY.md` — research synthesis and critical path
-- `.planning/research/STACK.md`, `ARCHITECTURE.md`, `FEATURES.md` — research inputs
-- `.planning/config.json` — granularity: standard, workflow gates on
+`.github/workflows/release.yml` (changesets): merge to main → "Version Packages" PR → merge → publish. Needs the `klank` npm org and the `NPM_TOKEN` repo secret.

@@ -1,7 +1,7 @@
 {
   "name": "@klank/sdk",
   "version": "0.1.0",
-  "description": "Bot SDK for Klank — build bots with event listeners, command routing, and more",
+  "description": "Bot SDK for Klank, the self-hosted E2EE team chat — webhooks, typed events, slash command verification",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,6 +14,10 @@
     "./package.json": "./package.json"
   },
   "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -34,10 +38,13 @@
     "typescript": "^5.6.0",
     "vitest": "^3.2.4"
   },
-  "keywords": ["klank", "bot", "sdk", "chat", "messaging"],
+  "keywords": ["klank", "bot", "sdk", "chat", "messaging", "webhook", "e2ee"],
   "license": "MIT",
+  "homepage": "https://github.com/Aktiga/klank-sdk/tree/main/packages/sdk#readme",
+  "bugs": "https://github.com/Aktiga/klank-sdk/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Aktiga/klank-sdk"
+    "url": "git+https://github.com/Aktiga/klank-sdk.git",
+    "directory": "packages/sdk"
   }
 }
