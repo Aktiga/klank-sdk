@@ -1,68 +1,57 @@
-# Deploying Bots
+# Deploying bots
 
-Your bot needs to stay running to listen for events. Here are deployment options for both TypeScript and Rust bots.
+Two shapes of bot, two deployment stories.
 
-## TypeScript Bots
+- **Webhook posters** (`WebhookBot`) run on demand: a CI step, a cron job, a Lambda. Nothing to keep alive.
+- **Event bots** (`KlankBot`) hold a WebSocket and must stay running. Note that events do not reach bots on Klank `53d464a` — see [server-requirements.md](server-requirements.md) — so a long-running bot has nothing to react to yet.
 
-### Option 1: Docker (Recommended)
+## Environment variables
+
+The SDK reads no environment variables itself; these are the names the examples and snippets use.
+
+| Variable | Used by | Description |
+|---|---|---|
+| `SERVER_URL` | both | Klank server origin, e.g. `https://chat.example.com`. |
+| `BOT_TOKEN` | `KlankBot`, `KlankClient` | Bot API token (`bot_` + 64 hex), shown once at creation. |
+| `WEBHOOK_ID` | `WebhookBot` | Incoming webhook UUID. |
+| `WEBHOOK_SECRET` | `WebhookBot` | Raw webhook secret, shown once at creation. |
+| `SLASH_SIGNING_SECRET` | slash receivers | Per-command signing secret configured on the server side. |
+
+Pass tokens as secrets (Docker secrets, `fly secrets set`, systemd `EnvironmentFile` with mode 0600), never in an image layer or a committed compose file.
+
+## Docker
 
 ```dockerfile
-FROM node:22-slim
+FROM node:20-slim
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --production
+RUN npm ci --omit=dev
 COPY . .
 CMD ["node", "dist/index.js"]
 ```
 
 ```bash
-docker build -t my-bot .
-docker run -d \
-  -e BOT_TOKEN=bot_xxx \
+docker run -d --name my-bot --restart unless-stopped \
   -e SERVER_URL=http://klank-server:3000 \
-  --name my-bot \
-  --restart unless-stopped \
+  -e BOT_TOKEN=bot_xxx \
   my-bot
 ```
 
-Add to your `docker-compose.yml` alongside the Klank server:
+Docker sends `SIGTERM` on `docker stop`, so wire up shutdown (below) or the container waits out the 10 s grace period on every deploy.
 
-```yaml
-services:
-  my-bot:
-    build: ./my-bot
-    environment:
-      BOT_TOKEN: bot_xxx
-      SERVER_URL: http://server:3000
-    depends_on:
-      - server
-    restart: unless-stopped
-```
-
-### Option 2: Process Manager (PM2)
-
-```bash
-npm install -g pm2
-pm2 start dist/index.js --name my-bot
-pm2 save
-pm2 startup  # Auto-start on reboot
-```
-
-### Option 3: Systemd Service
+## Systemd
 
 ```ini
-# /etc/systemd/system/my-bot.service
 [Unit]
 Description=My Klank Bot
-After=network.target
+After=network-online.target
 
 [Service]
 Type=simple
 User=bot
 WorkingDirectory=/opt/my-bot
 ExecStart=/usr/bin/node dist/index.js
-Environment=BOT_TOKEN=bot_xxx
-Environment=SERVER_URL=http://localhost:3000
+EnvironmentFile=/etc/my-bot.env
 Restart=always
 RestartSec=5
 
@@ -70,124 +59,61 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-```bash
-sudo systemctl enable my-bot
-sudo systemctl start my-bot
+A process manager such as PM2 works the same way; the SDK does not care.
+
+## Shutdown
+
+`KlankBot` installs no signal handlers by default. The host process decides when to stop:
+
+```ts
+process.on('SIGTERM', () => bot.stop())
+process.on('SIGINT', () => bot.stop())
 ```
 
-### Option 4: Cloud Functions (Webhook-Only)
+`stop()` disables reconnect and closes the socket, so the process exits once the event loop drains. For a single-bot process, `handleSignals: true` installs exactly those two handlers for you:
 
-For `WebhookBot` (no WebSocket), you can use serverless:
-
-- **AWS Lambda** + API Gateway trigger
-- **Google Cloud Functions**
-- **Vercel Edge Functions**
-
-These only work for webhook-based bots that POST messages in response to external events (CI, monitoring). They can't listen for Klank events.
-
-## Rust Bots
-
-### Option 1: Docker
-
-```dockerfile
-FROM rust:1.94 AS builder
-WORKDIR /app
-COPY . .
-RUN cargo build --release
-
-FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/my-bot /usr/local/bin/my-bot
-CMD ["my-bot"]
+```ts
+const bot = new KlankBot({ token, serverUrl, handleSignals: true })
 ```
 
-```bash
-docker build -t my-bot .
-docker run -d \
-  -e BOT_TOKEN=bot_xxx \
-  -e SERVER_URL=http://klank-server:3000 \
-  --name my-bot \
-  --restart unless-stopped \
-  my-bot
-```
+Leave it `false` when the process owns other resources (an HTTP server, a database pool) or runs more than one bot — you want one shutdown path, not several racing ones.
 
-### Option 2: Pre-built Binary
+## Serverless
 
-```bash
-cargo build --release
-scp target/release/my-bot user@server:/opt/my-bot/
+`WebhookBot` fits a function runtime: construct it per invocation, `await send(...)`, return. `KlankBot` does not — a WebSocket cannot survive a frozen function instance.
 
-# On the server:
-BOT_TOKEN=bot_xxx SERVER_URL=http://localhost:3000 /opt/my-bot/my-bot
-```
+A slash command receiver is a plain HTTP handler and deploys anywhere, as long as the Klank server can reach its URL and it answers within 5 seconds. Verify the signature against the raw request body; frameworks that parse JSON for you will break the HMAC (see [security.md](security.md)).
 
-Use systemd (same pattern as TS above) for auto-restart.
+## Reconnects and gaps
 
-### Option 3: Fly.io
+With `reconnect: true` (the default) the socket retries with jittered exponential backoff from `baseDelayMs` up to `maxDelayMs`, fetching a fresh single-use ticket each attempt. After `maxAttempts` consecutive failures the SDK reports a `ConnectionError` to `onError` and stops — let the supervisor restart the process rather than retrying forever in place.
 
-```toml
-# fly.toml
-app = "my-klank-bot"
+While disconnected, events are lost: the server has no replay. On reconnect, or on an `events.missed` event, re-fetch state over REST instead of trusting anything cached.
 
-[build]
-  dockerfile = "Dockerfile"
+## Health checks
 
-[env]
-  SERVER_URL = "https://your-klank.example.com"
+The SDK exposes no health endpoint. If your platform needs one, add a socket of your own:
 
-# Set BOT_TOKEN as a secret:
-# fly secrets set BOT_TOKEN=bot_xxx
-```
+```ts
+import { createServer } from 'node:http'
 
-```bash
-fly deploy
-```
-
-## Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `BOT_TOKEN` | Yes (WS bots) | Bot API token from registration (`bot_...`) |
-| `SERVER_URL` | Yes | Klank server URL (e.g., `http://localhost:3000`) |
-| `WEBHOOK_ID` | For webhooks | Incoming webhook UUID |
-| `WEBHOOK_SECRET` | For webhooks | Webhook secret |
-
-## Monitoring
-
-### Health Checks
-
-Add a health check to your bot:
-
-```typescript
-import { createServer } from 'http'
-
-// Simple health endpoint
-createServer((req, res) => {
-  res.writeHead(200)
-  res.end('ok')
+createServer((_req, res) => {
+  res.writeHead(bot.getBotInfo() ? 200 : 503).end()
 }).listen(8080)
 ```
 
-Docker health check:
-```yaml
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:8080"]
-  interval: 30s
-  timeout: 5s
-  retries: 3
+## Logging
+
+The SDK logs nothing. Route errors yourself:
+
+```ts
+bot.onError((err, event) => console.error('[bot]', event?.type ?? 'connection', err))
 ```
 
-### Logging
+`KlankError` instances carry `code`, `status`, and the server's `body`; log those fields rather than the whole object, which can contain message text.
 
-The SDK logs to console by default. In production, pipe to your log aggregator:
+## Network requirements
 
-```bash
-docker logs my-bot 2>&1 | tee /var/log/my-bot.log
-```
-
-## Network Requirements
-
-- Bot must be able to reach the Klank server via HTTP/HTTPS
-- WebSocket connection on the same port as the REST API
-- No inbound ports needed (bot connects outbound to server)
-- If using slash commands without WebSocket, the server needs to reach the bot's HTTP endpoint
+- Outbound HTTP(S) to the Klank server; the WebSocket runs on the same origin and port as the REST API.
+- No inbound ports for an event bot or a webhook poster.
+- Inbound HTTPS only if you host a slash command receiver.
