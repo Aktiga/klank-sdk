@@ -1,5 +1,5 @@
 package/CHANGELOG.md
-package/dist/.tsbuildinfo
+package/LICENSE
 package/dist/bot.d.ts
 package/dist/bot.d.ts.map
 package/dist/client.d.ts
@@ -14,5 +14,4 @@ package/dist/webhook.d.ts
 package/dist/webhook.d.ts.map
 package/dist/ws.d.ts
 package/dist/ws.d.ts.map
-package/LICENSE
 package/package.json

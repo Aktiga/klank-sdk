@@ -6,7 +6,7 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "composite": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo"
+    "tsBuildInfoFile": "node_modules/.cache/tsc/.tsbuildinfo-build"
   },
   "include": ["src/**/*"],
   "exclude": ["test/**/*", "dist/**/*"]

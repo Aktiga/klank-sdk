@@ -23,7 +23,7 @@
     "build:types": "tsc -b tsconfig.build.json",
     "clean": "rm -rf dist .tsbuildinfo",
     "test": "vitest run",
-    "tarball:check": "pnpm pack --pack-destination ./.pack-tmp && tar -tzf ./.pack-tmp/*.tgz | sort > .tarball-actual.txt && diff -u .tarball-snapshot.txt .tarball-actual.txt && rm -rf ./.pack-tmp .tarball-actual.txt"
+    "tarball:check": "pnpm pack --pack-destination ./.pack-tmp && tar -tzf ./.pack-tmp/*.tgz | LC_ALL=C sort > .tarball-actual.txt && diff -u .tarball-snapshot.txt .tarball-actual.txt && rm -rf ./.pack-tmp .tarball-actual.txt"
   },
   "dependencies": {
     "ws": "^8.18.0"
