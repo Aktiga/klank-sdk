@@ -37,14 +37,17 @@ Full handoff: `docs/server-requirements.md`.
 ## Current Position
 
 Phase 1 (workspace bootstrap) complete; first CI run happened 2026-09-05 (tarball gate fixed for Linux `sort`).
-Phase 2 (0.2.0 webhook-first release) executing on branch `release/0.2.0`.
+Phase 2 merged to `main` 2026-09-05 (PR #1 code, PR #2 version bump). `main` is `@klank/sdk@0.2.0`,
+CHANGELOG written, all gates green, packed tarball smoke-tested from a clean consumer.
+**Not yet on npm**: the publish job reaches `npm publish` and stops at `ENEEDAUTH` because the
+`NPM_TOKEN` repo secret is unset (run 33969218723).
 
 ## Phases (revised 2026-09-05)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Workspace bootstrap | Done |
-| 2 | 0.2.0 webhook-first release (HMAC webhook, error taxonomy, slash verifier, retry policy, WS hardening, typed events, honest docs, release workflow) | Executing |
+| 2 | 0.2.0 webhook-first release (HMAC webhook, error taxonomy, slash verifier, retry policy, WS hardening, typed events, honest docs, release workflow) | Merged; awaiting npm publish (secret) |
 | 3 | Server bot model in `Aktiga/klank` (see `docs/server-requirements.md`) — bot tokens on channel routes, bot channel membership + WS subscriptions, slash delivery | Not started (blocks 4) |
 | 4 | 0.3.0: end-to-end `KlankBot` against the new server; `MockKlank` test kit; wire-fixture drift gate; `create-klank-bot` templates | Blocked on 3 |
 | 5 | Token rotation + webhook delete/rotate (server) + SDK methods | Not started |
@@ -58,4 +61,16 @@ Phase 2 (0.2.0 webhook-first release) executing on branch `release/0.2.0`.
 
 ## Publishing
 
-`.github/workflows/release.yml` (changesets): merge to main → "Version Packages" PR → merge → publish. Needs the `klank` npm org and the `NPM_TOKEN` repo secret.
+`.github/workflows/release.yml` (changesets). Flow: merge to main → action pushes `changeset-release/main`
+and FAILS to open the PR (Aktiga org setting "Allow GitHub Actions to create and approve pull requests"
+is off; needs `admin:org` to change) → open it by hand: `gh pr create --repo Aktiga/klank-sdk --head
+changeset-release/main --base main --title "chore(release): version packages"` → merge → publish.
+
+To publish 0.2.0 now:
+1. npm org `klank` must exist (npmjs.com → Add Organization; free for public packages).
+2. Granular access token: Packages and scopes → Read and write → scope `@klank`; Bypass 2FA on.
+3. `gh secret set NPM_TOKEN --repo Aktiga/klank-sdk` (paste the token at the prompt).
+4. `gh workflow run Release --repo Aktiga/klank-sdk` (or re-run the failed job) → `npm view @klank/sdk version` → 0.2.0.
+
+Keep Node's bundled npm 10 in the workflow: npm 11 rejects the `--git-checks` flag pnpm 9.12 forwards
+(`EUNKNOWNCONFIG`). Trusted Publishing (OIDC) can replace the token after the first publish, once pnpm is bumped.
