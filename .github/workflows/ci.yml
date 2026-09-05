@@ -73,6 +73,7 @@ jobs:
         with:
           name: sdk-dist
           path: packages/sdk/dist
+      - run: pnpm --filter @klank/sdk run typecheck
       - run: pnpm -w test
 
   attw:

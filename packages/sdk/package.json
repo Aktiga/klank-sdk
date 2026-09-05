@@ -13,7 +13,12 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
@@ -27,7 +32,8 @@
     "build:types": "tsc -b tsconfig.build.json",
     "clean": "rm -rf dist .tsbuildinfo",
     "test": "vitest run",
-    "tarball:check": "pnpm pack --pack-destination ./.pack-tmp && tar -tzf ./.pack-tmp/*.tgz | LC_ALL=C sort > .tarball-actual.txt && diff -u .tarball-snapshot.txt .tarball-actual.txt && rm -rf ./.pack-tmp .tarball-actual.txt"
+    "tarball:check": "pnpm pack --pack-destination ./.pack-tmp && tar -tzf ./.pack-tmp/*.tgz | LC_ALL=C sort > .tarball-actual.txt && diff -u .tarball-snapshot.txt .tarball-actual.txt && rm -rf ./.pack-tmp .tarball-actual.txt",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "ws": "^8.18.0"
@@ -38,7 +44,15 @@
     "typescript": "^5.6.0",
     "vitest": "^3.2.4"
   },
-  "keywords": ["klank", "bot", "sdk", "chat", "messaging", "webhook", "e2ee"],
+  "keywords": [
+    "klank",
+    "bot",
+    "sdk",
+    "chat",
+    "messaging",
+    "webhook",
+    "e2ee"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/Aktiga/klank-sdk/tree/main/packages/sdk#readme",
   "bugs": "https://github.com/Aktiga/klank-sdk/issues",
