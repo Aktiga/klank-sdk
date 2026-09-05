@@ -1,4 +1,4 @@
 packages:
   - "packages/*"
   - "examples/*"
-  - "!examples/echo-bot-rust"
+  - "!examples/community/**"
