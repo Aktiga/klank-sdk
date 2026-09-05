@@ -1,4 +1,6 @@
 export { KlankBot } from './bot.js'
-export { WebhookBot } from './webhook.js'
 export { KlankClient } from './client.js'
+export { WebhookBot, signWebhookBody } from './webhook.js'
+export { verifySlashCommandSignature, parseSlashCommandPayload } from './slash.js'
+export * from './errors.js'
 export type * from './types.js'
