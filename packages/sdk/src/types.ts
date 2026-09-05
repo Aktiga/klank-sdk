@@ -542,10 +542,7 @@ export type EventHandler<E extends ServerEvent = ServerEvent> = (
   ctx: BotContext,
 ) => Promise<void> | void
 
-export type CommandHandler = (
-  cmd: CommandInvokedEvent,
-  ctx: CommandContext,
-) => Promise<void> | void
+export type CommandHandler = (cmd: CommandInvokedEvent, ctx: CommandContext) => Promise<void> | void
 
 export type MessageHandler = (
   event: MessageNewEvent,

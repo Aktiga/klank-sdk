@@ -170,8 +170,7 @@ export function errorFromResponse(
   body: ErrorBody | string,
   surface: 'api' | 'webhook' = 'api',
 ): KlankError {
-  const message =
-    (typeof body === 'string' ? body : body.message || body.error) || `HTTP ${status}`
+  const message = (typeof body === 'string' ? body : body.message || body.error) || `HTTP ${status}`
   const opts = { status, body }
   switch (status) {
     case 400:
