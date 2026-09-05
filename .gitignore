@@ -6,3 +6,4 @@ target/
 *.tsbuildinfo
 .turbo
 *.tgz
+.DS_Store

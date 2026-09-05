@@ -39,7 +39,7 @@
   4. CI (GitHub Actions) runs build, lint, test, `attw --pack`, and tarball-contents check on every PR
   5. Repo ships `LICENSE` (MIT), seeded `CHANGELOG.md`, and `.changeset/` configured
 **Plans**: 4 plans
-- [ ] 01-01-PLAN.md — Wave 1: Root workspace scaffold (pnpm, tsconfig base, LICENSE, CHANGELOG, biome, changesets)
+- [x] 01-01-PLAN.md — Wave 1: Root workspace scaffold (pnpm, tsconfig base, LICENSE, CHANGELOG, biome, changesets)
 - [ ] 01-02-PLAN.md — Wave 2: git mv sdk-typescript→sdk, tsc -b + tsup split, vitest smoke test
 - [ ] 01-03-PLAN.md — Wave 3: Register examples + create-bot as workspace members, update PROJECT.md Node 20
 - [ ] 01-04-PLAN.md — Wave 4: GitHub Actions CI with six strict parallel jobs
