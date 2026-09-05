@@ -1,6 +1,6 @@
 {
   "name": "@klank/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bot SDK for Klank, the self-hosted E2EE team chat — webhooks, typed events, slash command verification",
   "type": "module",
   "main": "./dist/index.js",
