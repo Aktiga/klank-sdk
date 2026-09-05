@@ -2,16 +2,20 @@ name: Release
 
 # Changesets flow:
 #   1. A PR merges to main carrying .changeset/*.md files.
-#   2. This job opens/updates the "Version Packages" PR (bumps versions, writes CHANGELOGs).
+#   2. This job pushes the `changeset-release/main` branch and tries to open the
+#      "Version Packages" PR. The Aktiga org forbids Actions from creating PRs, so
+#      that step fails; open the PR by hand: `gh pr create --head changeset-release/main`.
 #   3. Merging that PR re-runs this job, which publishes to npm.
 #
-# Auth: NPM_TOKEN secret (granular token, @klank scope, publish rights). Once the
-# package exists on npm, switch the package to Trusted Publishing (GitHub Actions
-# OIDC) and delete the token — id-token: write and npm >= 11.5 are already set up.
+# Auth: NPM_TOKEN secret (granular token, read/write on the @klank scope, 2FA bypass).
+# Trusted Publishing (OIDC) is only possible after the first token-based publish and
+# needs npm >= 11.5.1 plus a pnpm that no longer forwards `--no-git-checks` to npm
+# (npm 11 rejects unknown flags with EUNKNOWNCONFIG); keep Node's bundled npm 10 until then.
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: release-${{ github.ref }}
@@ -43,8 +47,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
-      - name: Upgrade npm (OIDC trusted publishing needs >= 11.5)
-        run: npm install -g npm@latest
       - run: pnpm install --frozen-lockfile
       - run: pnpm -w build
       - name: Version packages or publish
