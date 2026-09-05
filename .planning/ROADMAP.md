@@ -1,16 +1,22 @@
 # Klank SDK Refresh — Roadmap
 
-**Milestone:** v0.2 → v0.4 (staged: 0.2.0 migration → 0.3.0 features → 0.4.0 E2EE + Rust)
+**Milestone:** v0.2 → v0.4 (staged: 0.2.0 webhook-first → 0.3.0 full bot → 0.4.0 E2EE + Rust)
 **Granularity:** standard
 **Coverage:** 100% — all 93 v1 requirements mapped
 **Created:** 2026-04-07
+**Revised:** 2026-09-05 — see `STATE.md` "Ground truth". The 2026-04-07 plan assumed the server
+already let bots read/post/receive events; it does not. The critical path is now
+Phase 2 (this repo, server-independent) → server bot model (`docs/server-requirements.md`) →
+Phases 3–6. Phase 2 no longer targets "unblock production users" (there are none — never
+published); it targets the first honest npm release.
 
 ---
 
 ## Phases
 
-- [ ] **Phase 1: Workspace Bootstrap** — pnpm workspace, biome, tsc -b, CI gates, changesets, license
-- [ ] **Phase 2: Migration to 0.2.0** — Fix broken webhook, E2EE errors, slash verifier, 429 hardening, honest README (ships 0.2.0)
+- [x] **Phase 1: Workspace Bootstrap** — pnpm workspace, biome, tsc -b, CI gates, changesets, license
+- [ ] **Phase 2: 0.2.0 webhook-first release** — HMAC webhook, error taxonomy, slash verifier, retry policy, WS hardening, typed events, honest docs, release workflow (ships 0.2.0)
+- [ ] **Phase 2.5: Server bot model (Aktiga/klank)** — bot tokens on channel routes, bot channel membership + WS subscriptions, slash delivery. Blocks Phases 4, 6, 12, 13.
 - [ ] **Phase 3: Schema Pipeline** — utoipa (server) + openapi-typescript (SDK) with discriminated unions
 - [ ] **Phase 4: Phase A — Typed Context & Ergonomics** — Typed `on()`, ctx helpers, self-echo fix, WS hardening
 - [ ] **Phase 5: Phase B — HTTP Slash Receivers** — Framework-agnostic slash command receiver
@@ -40,9 +46,9 @@
   5. Repo ships `LICENSE` (MIT), seeded `CHANGELOG.md`, and `.changeset/` configured
 **Plans**: 4 plans
 - [x] 01-01-PLAN.md — Wave 1: Root workspace scaffold (pnpm, tsconfig base, LICENSE, CHANGELOG, biome, changesets)
-- [ ] 01-02-PLAN.md — Wave 2: git mv sdk-typescript→sdk, tsc -b + tsup split, vitest smoke test
-- [ ] 01-03-PLAN.md — Wave 3: Register examples + create-bot as workspace members, update PROJECT.md Node 20
-- [ ] 01-04-PLAN.md — Wave 4: GitHub Actions CI with six strict parallel jobs
+- [x] 01-02-PLAN.md — Wave 2: git mv sdk-typescript→sdk, tsc -b + tsup split, vitest smoke test
+- [x] 01-03-PLAN.md — Wave 3: Register examples + create-bot as workspace members, update PROJECT.md Node 20
+- [x] 01-04-PLAN.md — Wave 4: GitHub Actions CI with six strict parallel jobs
 
 ### Phase 2: Migration to 0.2.0
 **Goal**: Every user currently broken against the live Klank server can upgrade to 0.2.0 and have webhooks, slash commands, E2EE errors, and rate-limit handling work honestly — and the README stops lying about Rust.

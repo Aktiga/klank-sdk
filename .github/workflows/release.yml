@@ -1,0 +1,60 @@
+name: Release
+
+# Changesets flow:
+#   1. A PR merges to main carrying .changeset/*.md files.
+#   2. This job opens/updates the "Version Packages" PR (bumps versions, writes CHANGELOGs).
+#   3. Merging that PR re-runs this job, which publishes to npm.
+#
+# Auth: NPM_TOKEN secret (granular token, @klank scope, publish rights). Once the
+# package exists on npm, switch the package to Trusted Publishing (GitHub Actions
+# OIDC) and delete the token — id-token: write and npm >= 11.5 are already set up.
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '9.12.0'
+
+jobs:
+  release:
+    name: version or publish
+    runs-on: ubuntu-latest
+    if: github.repository == 'Aktiga/klank-sdk'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm (OIDC trusted publishing needs >= 11.5)
+        run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -w build
+      - name: Version packages or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset:version
+          publish: pnpm changeset publish
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'

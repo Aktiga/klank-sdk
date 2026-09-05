@@ -11,7 +11,7 @@
       "**/node_modules/**",
       "**/*.tsbuildinfo",
       "**/pnpm-lock.yaml",
-      "examples/echo-bot-rust/**"
+      "examples/community/**"
     ]
   },
   "formatter": {
