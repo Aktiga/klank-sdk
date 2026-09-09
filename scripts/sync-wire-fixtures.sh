@@ -7,6 +7,10 @@
 #   bash scripts/sync-wire-fixtures.sh            # from main
 #   bash scripts/sync-wire-fixtures.sh feat/x     # from a branch, tag or SHA
 #
+# Pass a ref where both the fixture test and the slash-command work are present:
+# a ref with only the former has no `command.invoked` sample, and the gate then
+# reports it as an event the SDK models and the server no longer sends.
+#
 # Needs `gh` authenticated against a token with read access to Aktiga/klank.
 set -euo pipefail
 
@@ -14,7 +18,13 @@ ref="${1:-main}"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 dest="$repo_root/packages/sdk/fixtures/wire/server-events.json"
 
+# Staged through a temp file: a failed `gh` must not leave a truncated fixture,
+# which would read as "the server dropped every event".
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
 gh api "repos/Aktiga/klank/contents/fixtures/wire/server-events.json?ref=${ref}" \
-  -H "Accept: application/vnd.github.raw" >"$dest"
+  -H "Accept: application/vnd.github.raw" >"$tmp"
+mv "$tmp" "$dest"
 
 echo "synced $dest from Aktiga/klank@${ref}"
