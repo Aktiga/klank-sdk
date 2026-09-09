@@ -218,6 +218,53 @@ Retries: a 429 is retried up to `maxRetries` attempts in total (default 5 — th
 
 `ClientOptions`: `fetch` (global `fetch`), `maxRetries` (5), `retryBaseMs` (250).
 
+## Testing with MockKlank
+
+`@klank/sdk/testing` ships the fake server the SDK tests itself with: a real `node:http` listener plus a real `ws` server on an ephemeral port, so a `KlankBot` runs its whole REST + WebSocket path against it with nothing stubbed.
+
+```ts
+import { KlankBot } from '@klank/sdk'
+import { MockKlank } from '@klank/sdk/testing'
+import { afterEach, expect, it } from 'vitest'
+
+let mock: MockKlank
+afterEach(() => mock.close())
+
+it('replies to a message', async () => {
+  mock = await MockKlank.start()
+  const bot = new KlankBot({ token: process.env.BOT_TOKEN ?? 'bot_test', serverUrl: mock.url, reconnect: false })
+  bot.on('message', async (event, ctx) => {
+    await ctx.say(`saw ${event.plaintext}`)
+  })
+  await bot.start()
+
+  mock.deliver({
+    type: 'message.new',
+    channel_id: '…-c1',
+    message_id: '…-d1',
+    sender_id: '…-a1',
+    plaintext: 'hi',
+  })
+
+  const posted = await mock.waitForRequest((r) => r.method === 'POST' && r.path.endsWith('/messages'))
+  expect(posted.body).toMatchObject({ plaintext: 'saw hi' })
+  bot.stop()
+})
+```
+
+`MockKlank.start(options?)` serves `GET /auth/bot-info` (identity in `mock.botInfo`, override fields with `{ botInfo }`), mints single-use 30 s WebSocket tickets, and answers the message, edit, delete and reaction routes with plausible bodies. A reused, unknown or expired ticket gets a 401 and no upgrade, exactly like the server; anything unrouted gets the server's `{ error, message }` 404 envelope, and a request without a `Bearer bot_…` token gets a 401.
+
+| Member | Does |
+|---|---|
+| `url` | Origin to pass as `serverUrl`. |
+| `requests` | Every REST request in order: `{ method, path, query, headers, rawBody, body }`. |
+| `sockets` | WebSocket connections currently open. |
+| `deliver(event)` | JSON-encode an event and push it to every open socket. |
+| `waitForRequest(match, timeoutMs = 2000)` | First matching request, past or future; rejects on timeout. |
+| `waitForSocket(timeoutMs = 2000)` | Resolves once the bot's socket is up. |
+| `respond(method, path, handler)` | Override a route (exact pathname or `RegExp`); newest wins. Use it to test error paths: return `{ status: 403, body: { error: 'Forbidden', message: 'Not a member of this channel' } }` and the bot sees `ChannelMembershipError`. |
+| `close()` | Terminate sockets, close the listener. |
+
 ## Errors
 
 Everything thrown by the SDK extends `KlankError`, which carries `code`, and for server responses `status` and `body` (the parsed `{ error, message }` envelope, or raw text).
