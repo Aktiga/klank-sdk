@@ -17,7 +17,7 @@ Against Klank `53d464a` (2026-04-30). The server accepts bot tokens on two route
 | Surface | Status |
 |---|---|
 | `WebhookBot.send` | Works. Non-E2EE channels only; a channel with an active key epoch rejects with `E2EEChannelError`. |
-| `verifySlashCommandSignature`, `parseSlashCommandPayload` | Works. They implement the server's dispatch contract, which exists in the server but has no caller yet: there is no command registration route or UI, so nothing invokes your endpoint until that lands. |
+| `verifySlashCommandSignature`, `parseSlashCommandPayload` | Works. They implement the server's dispatch contract; on `53d464a` nothing calls it (no command registration route), the bot-model branch adds `POST /workspaces/{wid}/slash-commands` and the invoke route. |
 | `KlankClient.getBotInfo` | Works. |
 | `KlankClient.getWsTicket` | **Pending server** on `53d464a` (ticket insert violates a `users` FK); fixed on the bot-model branch. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#2-bots-have-no-channel-membership-so-they-receive-zero-websocket-events-and-cannot-pass-is_member) |
 | `KlankClient` channel / message / reaction methods | **Pending server.** Bot tokens are not yet accepted on those routes (401); the bot-model branch accepts them. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#1-bot-tokens-are-rejected-by-every-channelmessagereaction-route) |

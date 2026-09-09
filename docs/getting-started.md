@@ -95,7 +95,7 @@ await bot.start()
 
 Delivery requires a server with the bot-model work (see the [status table](../packages/sdk/README.md#status)); against Klank `53d464a` nothing arrives, and the reason is server-side, not a configuration mistake: a bot token authenticates (`start()` succeeds and the socket opens) but bots cannot be channel members, so the server sends them no channel events, and the channel/message/reaction REST routes reject bot tokens with 401. The branches that close this are listed in [server-requirements.md](server-requirements.md).
 
-On a server that has that work, a bot only receives a channel's events once it is a member of that channel. A channel admin or a workspace owner/admin adds it with their own user JWT:
+On a server that has that work, a bot only receives a channel's events once it is a member of that channel. A channel member who is a channel admin or a workspace owner/admin adds it with their own user JWT (never for DMs):
 
 ```bash
 curl -X POST "$SERVER_URL/api/v1/channels/$CHANNEL_ID/bots" \
@@ -113,7 +113,7 @@ curl -X POST "$SERVER_URL/api/v1/workspaces/$WORKSPACE_ID/slash-commands" \
   -d "{\"command\":\"/echo\",\"description\":\"Echo the text back\",\"bot_id\":\"$BOT_ID\",\"url\":\"https://bot.example.com/slash\"}"
 ```
 
-A member then invokes it with `POST /api/v1/channels/{channelId}/commands` `{"command":"/echo","text":"hi"}`. Klank delivers the invocation as a `command.invoked` event over the bot's WebSocket when the bot is connected, and POSTs a signed body to the registered `url` when it is not — the SDK verifies that POST with `verifySlashCommandSignature` plus `parseSlashCommandPayload`, with the recipe in [the SDK README](../packages/sdk/README.md#slash-commands-http). On `53d464a` there is no registration route at all, so neither path fires yet.
+A member then invokes it with `POST /api/v1/channels/{channelId}/commands` `{"command":"/echo","text":"hi"}`. Klank delivers the invocation as a `command.invoked` event over the bot's WebSocket when the bot is connected, and POSTs a signed body to the registered `url` when it is not — the SDK verifies that POST with `verifySlashCommandSignature` plus `parseSlashCommandPayload`, with the recipe in [the SDK README](../packages/sdk/README.md#slash-commands-http). Over the WebSocket the bot posts its own reply, so it must be a member of the channel; on the HTTP path the server posts the `in_channel` reply itself. On `53d464a` there is no registration route at all, so neither path fires yet.
 
 ## Next steps
 

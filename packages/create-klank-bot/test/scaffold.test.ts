@@ -30,8 +30,9 @@ async function tree(root: string): Promise<string[]> {
 
 /**
  * The range a template pins `@klank/sdk` to must resolve to the next published SDK: the
- * workspace version, bumped once when a pending changeset declares a `minor` for it.
- * A future minor changeset reds this until the templates are bumped with it.
+ * workspace version, bumped by whatever the pending changeset declares for it. A future
+ * minor or major changeset reds this until the templates are bumped with it; a patch
+ * release stays inside the caret range and does not.
  */
 async function expectedSdkRange(): Promise<string> {
   const sdk = JSON.parse(
@@ -41,14 +42,19 @@ async function expectedSdkRange(): Promise<string> {
   if (!match || match[1] === undefined || match[2] === undefined) {
     throw new Error(`unexpected @klank/sdk version ${sdk.version}`)
   }
+  const major = Number(match[1])
+  const minor = Number(match[2])
   const changesets = new URL('../../../.changeset/', import.meta.url)
-  let bumpMinor = false
+  let bump: 'major' | 'minor' | 'patch' = 'patch'
   for (const file of await readdir(changesets)) {
     if (!file.endsWith('.md')) continue
     const text = await readFile(new URL(file, changesets), 'utf8')
-    if (/^["']@klank\/sdk["']:\s*minor\s*$/m.test(text)) bumpMinor = true
+    const declared = /^["']@klank\/sdk["']:\s*(major|minor|patch)\s*$/m.exec(text)?.[1]
+    if (declared === 'major' || (declared === 'minor' && bump !== 'major')) bump = declared
   }
-  return bumpMinor ? `^${match[1]}.${Number(match[2]) + 1}.0` : `^${sdk.version}`
+  if (bump === 'major') return `^${major + 1}.0.0`
+  if (bump === 'minor') return `^${major}.${minor + 1}.0`
+  return `^${major}.${minor}.0`
 }
 
 const EXPECTED_FILES = [
