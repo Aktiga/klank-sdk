@@ -8,12 +8,11 @@ Verified against `main` @ 53d464a (2026-04-30).
 
 ## Status (2026-09-09)
 
-Four server branches, all in review, close everything below.
+Server work is on [Aktiga/klank PR #6](https://github.com/Aktiga/klank/pull/6) (`feat/bot-model`), which closes everything below.
 
-- `feat/bot-model` — `bot_channel_members(channel_id, bot_id, added_by, joined_at)`, `ChannelService::is_member` unioning user and bot membership, and the FK relaxations on `ws_tickets.user_id` and `reactions.user_id`. Closes the schema half of §2.
-- `feat/bot-membership` — `POST /api/v1/channels/{cid}/bots`, `DELETE /api/v1/channels/{cid}/bots/{bid}`, `GET /api/v1/channels/{cid}/bots`, hub subscribe/unsubscribe on add and remove, and `channel.member_joined` / `channel.member_left` published for the bot. Closes the delivery half of §2.
-- `feat/bot-auth-routes` — the channel, message, thread and reaction routes take `BotOrUser`, and a bot's `GET /workspaces/{wid}/channels` lists only the channels it belongs to. Closes §1.
-- `feat/slash-commands` — slash-command registration and invocation, delivered as `ServerEvent::CommandInvoked { bot_id, command, text, user_id, channel_id, workspace_id }` over the owning bot's WebSocket when it is connected, with the existing signed HTTP dispatch as the fallback. Closes §3.
+- `bot_channel_members(channel_id, bot_id, added_by, joined_at)`, `ChannelService::is_member` unioning user and bot membership, and the FK relaxations on `ws_tickets.user_id` and `reactions.user_id`; `POST /api/v1/channels/{cid}/bots`, `DELETE /api/v1/channels/{cid}/bots/{bid}`, `GET /api/v1/channels/{cid}/bots`, hub subscribe/unsubscribe on add and remove, and `channel.member_joined` / `channel.member_left` published for the bot. Closes §2.
+- The channel, message, thread and reaction routes take `BotOrUser`, and a bot's `GET /workspaces/{wid}/channels` lists only the channels it belongs to. Closes §1.
+- Slash-command registration and invocation, delivered as `ServerEvent::CommandInvoked { bot_id, command, text, user_id, channel_id, workspace_id }` over the owning bot's WebSocket when it is connected, with the existing signed HTTP dispatch as the fallback. Closes §3.
 
 §4's fixture ask is answered too: a server test emits `fixtures/wire/server-events.json` (one serialized sample per wire event) and the SDK pulls it in with `scripts/sync-wire-fixtures.sh`, where `packages/sdk/test/wire-fixtures.test.ts` diffs it against the `ServerEvent` union.
 

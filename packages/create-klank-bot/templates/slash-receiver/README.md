@@ -38,8 +38,12 @@ x-klank-signature: sha256=<hex hmac_sha256(signing_secret, raw_body)>
 ```
 
 You must answer 2xx JSON `{ "response_type": "ephemeral" | "in_channel", "text": "…" }`
-within 5 seconds. `in_channel` is the only value with a delivery path: the
-server has no per-user channel for ephemeral replies.
+within 5 seconds. On this HTTP dispatch path the server hands your reply back to
+the invoker in the body of its own `200`
+(`{ "delivery": "http", "response": { … }, "posted": false }`), so an `ephemeral`
+reply does reach the caller. `in_channel` is additionally posted into the channel
+as a message — unless the channel has an active key epoch, where plaintext is
+refused and `posted` stays `false`.
 
 Verify against the bytes received. The server signs compact serde JSON, so
 re-encoding the parsed body breaks the match — never verify against
@@ -50,12 +54,30 @@ re-encoding the parsed body breaks the match — never verify against
 ## Status
 
 `verifySlashCommandSignature` and `parseSlashCommandPayload` implement the
-server's dispatch contract, which exists in the server but has no caller yet:
-there is no command registration route or UI, so nothing invokes your endpoint
-until that lands. Details in
+server's dispatch contract. Command registration lands with the server
+bot-model work, [Aktiga/klank PR #6](https://github.com/Aktiga/klank/pull/6)
+(`feat/bot-model`); on a server without it there is no route to point a command
+at this endpoint. Details in
 [server-requirements.md](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md).
 
-Meanwhile, exercise it yourself:
+## Point a command at this receiver
+
+With a user JWT for a workspace owner or admin. The response carries the
+`signing_secret` once and never again — copy it into `SLASH_SIGNING_SECRET`:
+
+```bash
+curl -X POST "$SERVER_URL/api/v1/workspaces/$WORKSPACE_ID/slash-commands" \
+  -H "Authorization: Bearer $USER_JWT" \
+  -H 'content-type: application/json' \
+  -d '{"command":"/echo","url":"https://<your host>/slash"}'
+```
+
+A member then invokes it with `POST /api/v1/channels/$CHANNEL_ID/commands`
+`{"command":"/echo","text":"hi"}`, and Klank posts the signed body above to your
+`url`. Add `"bot_id"` to the registration to deliver over a connected bot's
+WebSocket instead, with this HTTP dispatch as the fallback.
+
+To exercise the endpoint without a server:
 
 ```bash
 BODY='{"command":"/echo","text":"hi","user_id":"u","channel_id":"c","workspace_id":"w"}'

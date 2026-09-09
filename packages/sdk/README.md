@@ -12,7 +12,7 @@ Node 20+. ESM only (`import`, no `require`). No runtime dependencies beyond `ws`
 
 ## Status
 
-Against Klank `53d464a` (2026-04-30). The server accepts bot tokens on two routes — and one of those two, the WebSocket ticket, still fails on a foreign key — and it has no channel-membership model for bots, so most of the interactive surface cannot do anything yet. The server bot-model branch (`feat/bot-model` plus `feat/bot-membership`, `feat/bot-auth-routes`, `feat/slash-commands`, all in review) closes every row marked pending below. Details in [server-requirements.md](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md).
+Against Klank `53d464a` (2026-04-30). The server accepts bot tokens on two routes — and one of those two, the WebSocket ticket, still fails on a foreign key — and it has no channel-membership model for bots, so most of the interactive surface cannot do anything yet. The server bot-model work, [Aktiga/klank PR #6](https://github.com/Aktiga/klank/pull/6) (`feat/bot-model`), closes every row marked pending below. Details in [server-requirements.md](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md).
 
 | Surface | Status |
 |---|---|
