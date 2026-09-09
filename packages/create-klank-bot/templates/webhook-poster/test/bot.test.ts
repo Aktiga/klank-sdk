@@ -8,6 +8,7 @@ import { notify } from '../src/index.js'
 
 const WEBHOOK_ID = '11111111-2222-3333-4444-555555555555'
 const SECRET = 'a'.repeat(48)
+const ORIGINAL_ENV = process.env
 
 const MESSAGE: Message = {
   id: '99999999-8888-7777-6666-555555555555',
@@ -45,15 +46,19 @@ beforeEach(async () => {
   })
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()))
 
-  process.env.SERVER_URL = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
-  process.env.WEBHOOK_ID = WEBHOOK_ID
-  process.env.WEBHOOK_SECRET = SECRET
+  // Replace rather than mutate: assigning `undefined` to a `process.env` key
+  // stores the string "undefined", so restoring the original object is the only
+  // way to leave the environment exactly as it was.
+  process.env = {
+    ...ORIGINAL_ENV,
+    SERVER_URL: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+    WEBHOOK_ID,
+    WEBHOOK_SECRET: SECRET,
+  }
 })
 
 afterEach(async () => {
-  delete process.env.SERVER_URL
-  delete process.env.WEBHOOK_ID
-  delete process.env.WEBHOOK_SECRET
+  process.env = ORIGINAL_ENV
   if (server.listening) await new Promise<void>((resolve) => server.close(() => resolve()))
 })
 
@@ -87,7 +92,7 @@ describe('notify', () => {
   })
 
   it('fails with an actionable message when the environment is incomplete', async () => {
-    delete process.env.WEBHOOK_SECRET
+    process.env = { ...process.env, WEBHOOK_SECRET: undefined }
 
     await expect(notify('nope')).rejects.toThrow(/Missing WEBHOOK_SECRET/)
     expect(captured).toHaveLength(0)

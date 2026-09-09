@@ -5,10 +5,10 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import WebSocket from 'ws'
 import {
+  type BotConfig,
   ChannelMembershipError,
   ConnectionError,
   KlankBot,
-  type BotConfig,
   type MessageNewEvent,
   type ServerEvent,
 } from '../src/index.js'

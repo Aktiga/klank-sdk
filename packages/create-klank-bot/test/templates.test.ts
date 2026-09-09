@@ -17,14 +17,6 @@ const sdkTestingEntry = join(worktreeRoot, 'packages/sdk/src/testing/index.ts')
 const typeRoots = [dirname(dirname(require.resolve('@types/node/package.json')))]
 const vitestTypes = join(dirname(require.resolve('vitest/package.json')), 'dist/index.d.ts')
 
-/**
- * `@klank/sdk/testing` (the `MockKlank` harness the echo template's test uses)
- * lands with the SDK bot-model work. While it is absent, the echo template may
- * only report the unresolved import itself — nothing else is tolerated, and the
- * tolerance disappears the moment the module exists.
- */
-const sdkTestingMissing = !existsSync(sdkTestingEntry)
-
 // Mirrors templates/*/tsconfig.json, with the workspace SDK source substituted
 // for the published package so templates are checked against the code in this
 // repo rather than whatever is on npm.
@@ -89,18 +81,7 @@ describe('template typecheck', () => {
       const sources = result.files.filter((file) => file.endsWith('.ts'))
       expect(sources).toEqual(['src/index.ts', 'test/bot.test.ts'])
 
-      const reported = typecheck(dir, sources)
-      const tolerated =
-        template.name === 'echo' && sdkTestingMissing
-          ? reported.filter(
-              (entry) => entry.code === 2307 && entry.message.includes('@klank/sdk/testing'),
-            )
-          : []
-
-      expect(reported.filter((entry) => !tolerated.includes(entry))).toEqual([])
-      if (template.name === 'echo' && sdkTestingMissing) {
-        expect(tolerated).toHaveLength(1)
-      }
+      expect(typecheck(dir, sources)).toEqual([])
     })
   }
 })

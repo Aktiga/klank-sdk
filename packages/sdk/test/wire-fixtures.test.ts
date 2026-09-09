@@ -94,11 +94,7 @@ describe('wire fixture drift gate', () => {
       .sort()
     expect(
       { missingFromFixture, missingFromUnion },
-      `modelled in src/types.ts but absent from the fixture: [${missingFromFixture.join(', ')}] — ` +
-        'either the server dropped the event (delete the interface and its union member) or the ' +
-        `fixture is stale (${REFRESH}). In the fixture but not in src/types.ts: ` +
-        `[${missingFromUnion.join(', ')}] — the server added the event; add an interface in ` +
-        'src/types.ts and a member to the `ServerEvent` union.',
+      `modelled in src/types.ts but absent from the fixture: [${missingFromFixture.join(', ')}] — either the server dropped the event (delete the interface and its union member) or the fixture is stale (${REFRESH}). In the fixture but not in src/types.ts: [${missingFromUnion.join(', ')}] — the server added the event; add an interface in src/types.ts and a member to the \`ServerEvent\` union.`,
     ).toEqual({ missingFromFixture: [], missingFromUnion: [] })
   })
 
@@ -129,8 +125,7 @@ describe('wire fixture drift gate', () => {
     }
     expect(
       absent,
-      'src/types.ts requires fields the server no longer sends: make them optional or delete ' +
-        `them in src/types.ts, unless the fixture is simply stale (${REFRESH}).`,
+      `src/types.ts requires fields the server no longer sends: make them optional or delete them in src/types.ts, unless the fixture is simply stale (${REFRESH}).`,
     ).toEqual([])
   })
 

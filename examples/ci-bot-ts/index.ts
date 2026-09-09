@@ -2,11 +2,10 @@
  * CI bot — posts build notifications through an incoming webhook and answers
  * slash commands in the channel.
  *
- * The webhook half works today. The slash command half is pending server
- * support: Klank 53d464a never emits `command.invoked` over the WebSocket, so
- * `bot.command()` handlers do not fire — and its HTTP dispatch path has no
- * caller either, so an HTTP receiver would also sit idle. Details in
- * docs/server-requirements.md.
+ * Needs a Klank server with the bot-model work (bot channel membership and
+ * slash commands; see docs/server-requirements.md). Register `/status` and
+ * `/deploy` with `POST /api/v1/workspaces/{wid}/slash-commands` pointing at this
+ * bot's id; while the bot is connected, invocations arrive as `command.invoked`.
  *
  * Usage:
  *   SERVER_URL=http://localhost:3000 BOT_TOKEN=bot_xxx \
