@@ -1,3 +1,4 @@
+import type { KlankBot } from '@klank/sdk'
 import { MockKlank, type RecordedRequest } from '@klank/sdk/testing'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createBot } from '../src/index.js'
@@ -7,11 +8,24 @@ const MESSAGE_ID = '33333333-3333-3333-3333-333333333333'
 const USER_ID = '44444444-4444-4444-4444-444444444444'
 
 let mock: MockKlank | undefined
+let bot: KlankBot | undefined
 
 afterEach(async () => {
+  bot?.stop()
+  bot = undefined
   await mock?.close()
   mock = undefined
 })
+
+/** No reconnect loop and no heartbeat timer, so a failed assertion cannot leave one running. */
+function build(mock: MockKlank): KlankBot {
+  return createBot({
+    token: 'bot_test',
+    serverUrl: mock.url,
+    reconnect: false,
+    ws: { heartbeatMs: 0 },
+  })
+}
 
 function messageNew(plaintext: string): Record<string, unknown> {
   return {
@@ -33,7 +47,7 @@ function messageNew(plaintext: string): Record<string, unknown> {
 describe('createBot', () => {
   it('echoes an incoming message back into its channel', async () => {
     mock = await MockKlank.start()
-    const bot = createBot({ token: 'bot_test', serverUrl: mock.url })
+    bot = build(mock)
 
     await bot.start()
     await mock.waitForSocket()
@@ -45,13 +59,11 @@ describe('createBot', () => {
     expect(request.method).toBe('POST')
     expect(request.path).toBe(`/api/v1/channels/${CHANNEL_ID}/messages`)
     expect(request.body).toMatchObject({ plaintext: 'echo: hi', content_type: 'plaintext' })
-
-    bot.stop()
   })
 
   it('ignores a message with no readable text', async () => {
     mock = await MockKlank.start()
-    const bot = createBot({ token: 'bot_test', serverUrl: mock.url })
+    bot = build(mock)
 
     await bot.start()
     await mock.waitForSocket()
@@ -64,7 +76,5 @@ describe('createBot', () => {
     await expect(
       mock.waitForRequest((req: RecordedRequest) => req.path.endsWith('/messages'), 200),
     ).rejects.toThrow()
-
-    bot.stop()
   })
 })
