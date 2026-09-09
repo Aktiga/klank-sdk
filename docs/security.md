@@ -94,13 +94,15 @@ A bot token is `bot_` + 64 hex characters, returned exactly once from `POST /api
 
 Webhook secrets have the same one-shot model, and `53d464a` has no webhook delete or rotate route at all — rotating one means creating a replacement webhook and retiring the old channel binding.
 
+A slash command's `signing_secret` is a third kind of secret, with a weaker storage model than either: the server is the signer, and HMAC needs the key itself, so the secret is stored raw rather than hashed. It is returned exactly once, from `POST /api/v1/workspaces/{wid}/slash-commands`; the listing route returns it as `null` and no route reveals it again. Anyone who can read that table can forge a dispatch to your endpoint, so treat a valid signature as proof of body integrity and of a secret the server holds, never as proof of who is asking. There is no rotate route: `DELETE /api/v1/workspaces/{wid}/slash-commands/{id}`, register the command again, take the new secret from that response, and update the receiver.
+
 Bot scopes (`["read","write"]` by default) are stored but not enforced by the server yet. Do not treat a scope as a control.
 
 WebSocket authentication uses a separate short-lived credential: `POST /api/v1/auth/bot-ws-ticket` returns a single-use ticket valid for 30 seconds, passed as `?ticket=…` on the socket URL. The SDK fetches a fresh one for every connect, including every reconnect, so the long-lived token never appears in a query string.
 
 ## Channel membership
 
-Reads and writes require the caller to be a member of the channel; the server answers a non-member with 403 `Not a member of this channel`, which the SDK raises as `ChannelMembershipError`. Adding a bot to a channel is not possible on `53d464a`, which is why the interactive surface is inert — see [server-requirements.md](server-requirements.md).
+Reads and writes require the caller to be a member of the channel; the server answers a non-member with 403 `Not a member of this channel`, which the SDK raises as `ChannelMembershipError`. Adding a bot to a channel is not possible on `53d464a` — the route arrives with the server bot-model branch as `POST /api/v1/channels/{cid}/bots` — which is why the interactive surface is inert; see [server-requirements.md](server-requirements.md).
 
 ## Bots and end-to-end encryption
 
