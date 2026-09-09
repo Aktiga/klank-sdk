@@ -406,8 +406,11 @@ export class MockKlank {
   private handleUpgrade(req: IncomingMessage, socket: Duplex, head: Buffer): void {
     const url = new URL(req.url ?? '/', this.url)
     if (url.pathname !== '/api/v1/ws' || !this.consumeTicket(url.searchParams.get('ticket'))) {
-      socket.write('HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n')
-      socket.destroy()
+      // `ws`'s own `abortHandshake`: flush the response before destroying, and swallow a
+      // peer reset during that write so it cannot surface as an uncaught exception.
+      socket.on('error', () => {})
+      socket.once('finish', () => socket.destroy())
+      socket.end('HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n')
       return
     }
     this.wss.handleUpgrade(req, socket, head, (ws) => {
