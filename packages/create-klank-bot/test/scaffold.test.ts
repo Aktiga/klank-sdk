@@ -28,6 +28,29 @@ async function tree(root: string): Promise<string[]> {
     .sort()
 }
 
+/**
+ * The range a template pins `@klank/sdk` to must resolve to the next published SDK: the
+ * workspace version, bumped once when a pending changeset declares a `minor` for it.
+ * A future minor changeset reds this until the templates are bumped with it.
+ */
+async function expectedSdkRange(): Promise<string> {
+  const sdk = JSON.parse(
+    await readFile(new URL('../../sdk/package.json', import.meta.url), 'utf8'),
+  ) as { version: string }
+  const match = /^(\d+)\.(\d+)\.\d+$/.exec(sdk.version)
+  if (!match || match[1] === undefined || match[2] === undefined) {
+    throw new Error(`unexpected @klank/sdk version ${sdk.version}`)
+  }
+  const changesets = new URL('../../../.changeset/', import.meta.url)
+  let bumpMinor = false
+  for (const file of await readdir(changesets)) {
+    if (!file.endsWith('.md')) continue
+    const text = await readFile(new URL(file, changesets), 'utf8')
+    if (/^["']@klank\/sdk["']:\s*minor\s*$/m.test(text)) bumpMinor = true
+  }
+  return bumpMinor ? `^${match[1]}.${Number(match[2]) + 1}.0` : `^${sdk.version}`
+}
+
 const EXPECTED_FILES = [
   '.env.example',
   'README.md',
@@ -88,7 +111,7 @@ describe('scaffold', () => {
       }
       expect(manifest.name).toBe('my-klank-bot')
       expect(manifest.scripts.test).toBe('vitest run')
-      expect(manifest.dependencies['@klank/sdk']).toBe('^0.2.0')
+      expect(manifest.dependencies['@klank/sdk']).toBe(await expectedSdkRange())
       expect(await readFile(join(dir, 'README.md'), 'utf8')).toContain('my-klank-bot')
     })
   }
@@ -126,7 +149,7 @@ describe('scaffold', () => {
     await expect(scaffold({ dir, template: 'nope' })).rejects.toThrow(
       /unknown template.*echo.*webhook-poster.*slash-receiver/is,
     )
-    expect(await tree(await tmp())).toEqual([])
+    await expect(readdir(dir)).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
   it('rejects a --name that npm would not accept', async () => {

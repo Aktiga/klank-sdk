@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@klank/sdk": "^0.2.0"
+    "@klank/sdk": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^20",

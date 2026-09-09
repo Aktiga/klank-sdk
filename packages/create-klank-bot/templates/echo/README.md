@@ -62,5 +62,4 @@ npm test
 
 `test/bot.test.ts` runs the bot against `MockKlank` from `@klank/sdk/testing` —
 a real local HTTP + WebSocket server — and asserts the echo reply is posted to
-the right channel. `@klank/sdk/testing` ships with the bot-model release of the
-SDK; on `0.2.0` that import does not resolve yet.
+the right channel.
