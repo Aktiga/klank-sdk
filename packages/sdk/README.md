@@ -167,7 +167,7 @@ The `event` parameter is narrowed to that variant. `off(name, handler): this` re
 
 `message(pattern: RegExp | string, handler): this` runs on `message.new` when the message's `plaintext` matches, and the handler receives `(event, ctx, matches)`. A string is compiled with `new RegExp(pattern)` — an unanchored pattern, not a literal substring: pass a `RegExp` when you want flags, and escape metacharacters if you mean them literally. Messages whose `sender_id` is the bot or one of `webhookIds` are skipped.
 
-`command(name, handler): this` registers a handler for the `command.invoked` event. `ctx.respond({ responseType: 'in_channel', text })` posts to the channel; `responseType: 'ephemeral'` throws `UnsupportedError` because the server has no per-user delivery. A server with the bot-model work delivers an invocation over the WebSocket when the owning bot is connected, and otherwise POSTs the signed HTTP body to the command's registered `url` — so a bot that wants both paths registers this handler and the HTTP receiver above. `event.bot_id` carries the bot the command was registered against.
+`command(name, handler): this` registers a handler for the `command.invoked` event. `ctx.respond({ responseType: 'in_channel', text })` posts to the channel; `responseType: 'ephemeral'` throws `UnsupportedError` because the server has no per-user delivery. A server with the bot-model work delivers an invocation over the WebSocket when the owning bot is connected, and otherwise POSTs the signed HTTP body to the command's registered `url` — so a bot that wants both paths registers this handler and the HTTP receiver above. `event.bot_id` carries the bot the command was registered against. Over the WebSocket the bot posts its own reply, so it must be a member of the channel (`ChannelMembershipError` otherwise); on the HTTP path the server posts the `in_channel` reply itself.
 
 `use(mw): this` adds middleware `(event, ctx, next)` that runs before handlers for every event; call `next()` to continue.
 
@@ -329,7 +329,7 @@ Register with a user JWT: `POST /api/v1/workspaces/{workspaceId}/bots` `{"name":
 
 ## Channel membership
 
-Every channel, message, and reaction route requires the caller to be a channel member; non-members get 403 `Not a member of this channel` (`ChannelMembershipError`). A bot is added to a channel with `POST /api/v1/channels/{channelId}/bots` `{"bot_id":"…"}`, called with a user JWT by a channel admin or a workspace owner/admin, and removed with `DELETE /api/v1/channels/{channelId}/bots/{botId}`; `GET /api/v1/channels/{channelId}/bots` lists a channel's bots for any member. Those routes are part of the server bot-model branch, which is why `KlankClient` message methods and `KlankBot` events do not function against `53d464a`.
+Every channel, message, and reaction route requires the caller to be a channel member; non-members get 403 `Not a member of this channel` (`ChannelMembershipError`). A bot is added to a channel with `POST /api/v1/channels/{channelId}/bots` `{"bot_id":"…"}`, called with a user JWT by a channel member who is a channel admin or a workspace owner/admin (never for DMs), and removed with `DELETE /api/v1/channels/{channelId}/bots/{botId}`; `GET /api/v1/channels/{channelId}/bots` lists a channel's bots for any member. Those routes are part of the server bot-model branch, which is why `KlankClient` message methods and `KlankBot` events do not function against `53d464a`.
 
 ## Security
 
