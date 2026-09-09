@@ -42,8 +42,8 @@
   "command.invoked": {
     "bot_id": "00000000-0000-0000-0000-000000000001",
     "channel_id": "00000000-0000-0000-0000-000000000003",
-    "command": "/echo",
-    "text": "hello",
+    "command": "/deploy",
+    "text": "prod",
     "type": "command.invoked",
     "user_id": "00000000-0000-0000-0000-000000000002",
     "workspace_id": "00000000-0000-0000-0000-000000000004"
@@ -133,13 +133,22 @@
   },
   "message.new": {
     "channel_id": "00000000-0000-0000-0000-000000000001",
-    "ciphertext": [1, 2, 3],
+    "ciphertext": [
+      1,
+      2,
+      3
+    ],
     "content_type": "plaintext",
     "created_at": "2026-01-02T03:04:05Z",
     "key_epoch": 1,
-    "mentions": ["00000000-0000-0000-0000-000000000005"],
+    "mentions": [
+      "00000000-0000-0000-0000-000000000005"
+    ],
     "message_id": "00000000-0000-0000-0000-000000000002",
-    "nonce": [4, 5],
+    "nonce": [
+      4,
+      5
+    ],
     "plaintext": "plaintext",
     "sender_id": "00000000-0000-0000-0000-000000000003",
     "sender_type": "bot",
@@ -148,12 +157,19 @@
   },
   "message.updated": {
     "channel_id": "00000000-0000-0000-0000-000000000001",
-    "ciphertext": [1, 2, 3],
+    "ciphertext": [
+      1,
+      2,
+      3
+    ],
     "content_type": "plaintext",
     "edited_at": "2026-01-02T03:04:05Z",
     "key_epoch": 1,
     "message_id": "00000000-0000-0000-0000-000000000002",
-    "nonce": [4, 5],
+    "nonce": [
+      4,
+      5
+    ],
     "plaintext": "plaintext",
     "type": "message.updated"
   },
