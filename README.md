@@ -7,9 +7,15 @@ Client SDKs for [Klank](https://github.com/Aktiga/klank), the self-hosted end-to
 | Package | What it is |
 |---|---|
 | [`@klank/sdk`](packages/sdk) | The bot SDK: webhook posting, slash command verification, typed REST client, WebSocket event bot. Published to npm from this repo — [reference](packages/sdk/README.md). |
-| `@klank/create-bot` | Project scaffolder. Placeholder only: not written, not published. |
+| [`create-klank-bot`](packages/create-klank-bot) | Project scaffolder: `npm create klank-bot my-bot`. Three templates, each with a runnable test — [reference](packages/create-klank-bot/README.md). |
 
 A Rust crate is planned. `examples/community/echo-bot-rust` is a hand-rolled example, not a supported SDK.
+
+## Create a bot
+
+```bash
+npm create klank-bot@latest my-bot    # --template echo | webhook-poster | slash-receiver
+```
 
 ## Examples
 
