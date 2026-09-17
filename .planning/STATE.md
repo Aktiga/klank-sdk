@@ -34,29 +34,33 @@ progress:
 
 Full handoff: `docs/server-requirements.md`.
 
-## Current Position
+## Current Position (paused 2026-09-17)
 
-Phase 1 (workspace bootstrap) complete; first CI run happened 2026-09-05 (tarball gate fixed for Linux `sort`).
-Phase 2 merged to `main` 2026-09-05 (PR #1 code, PR #2 version bump). `main` is `@klank/sdk@0.2.0`,
-CHANGELOG written, all gates green, packed tarball smoke-tested from a clean consumer.
-**Not yet on npm**: the publish job reaches `npm publish` and stops at `ENEEDAUTH` because the
-`NPM_TOKEN` repo secret is unset (run 33969218723).
+Phase 1–2 merged (`main` is `@klank/sdk@0.2.0`, never published — `NPM_TOKEN` unset).
+Phase 3 **merged server-side**: `Aktiga/klank` PR #6 (`feat/bot-model`) landed 2026-09-11 and deployed.
+Phase 4 is in **open PR #3** (`feat/bot-model-sdk` @ `a7ca7a1`): `@klank/sdk/testing` (MockKlank),
+`create-klank-bot` + three templates, wire-fixture drift gate, doc corrections. All six CI checks
+green, HEAD == origin, two adversarial review passes closed. Awaiting a merge decision.
+Next-session checklist: `.planning/ledger-2026-09-09.md` ("Open items").
 
-## Phases (revised 2026-09-05)
+## Phases (revised 2026-09-17)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Workspace bootstrap | Done |
-| 2 | 0.2.0 webhook-first release (HMAC webhook, error taxonomy, slash verifier, retry policy, WS hardening, typed events, honest docs, release workflow) | Merged; awaiting npm publish (secret) |
-| 3 | Server bot model in `Aktiga/klank` (see `docs/server-requirements.md`) — bot tokens on channel routes, bot channel membership + WS subscriptions, slash delivery | Not started (blocks 4) |
-| 4 | 0.3.0: end-to-end `KlankBot` against the new server; `MockKlank` test kit; wire-fixture drift gate; `create-klank-bot` templates | Blocked on 3 |
+| 2 | 0.2.0 webhook-first release | Merged; never published (secret) |
+| 3 | Server bot model in `Aktiga/klank` | Done — PR #6 merged 2026-09-11 |
+| 4 | MockKlank test kit, wire-fixture gate, `create-klank-bot` templates | PR #3 open, green, unmerged |
 | 5 | Token rotation + webhook delete/rotate (server) + SDK methods | Not started |
 | 6 | E2EE bots (MLS) and Rust crate | Not started |
 
 ## Open decisions
 
-- Bot channel scoping: implicit all-workspace-channels vs explicit `bot_channel_members` (recommended). Product call needed before Phase 3.
-- Whether bots have presence.
+- Bot channel scoping: **settled** — explicit `bot_channel_members` (private channels stay private,
+  DMs refused). Shipped in PR #6.
+- Whether bots have presence: unchanged (bots flow through `hub.user_connected`); revisit if clients
+  render phantom users.
+- Hub is one-socket-per-principal, now load-bearing for long-lived bots (`klank-swarm/review-server.md` F7).
 - Trusted Publishing: after the first npm publish, configure OIDC on npmjs.com and delete `NPM_TOKEN`.
 
 ## Publishing
