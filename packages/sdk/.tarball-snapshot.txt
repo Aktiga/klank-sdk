@@ -13,6 +13,12 @@ package/dist/index.js
 package/dist/index.js.map
 package/dist/slash.d.ts
 package/dist/slash.d.ts.map
+package/dist/testing/index.d.ts
+package/dist/testing/index.d.ts.map
+package/dist/testing/index.js
+package/dist/testing/index.js.map
+package/dist/testing/mock-klank.d.ts
+package/dist/testing/mock-klank.d.ts.map
 package/dist/types.d.ts
 package/dist/types.d.ts.map
 package/dist/webhook.d.ts

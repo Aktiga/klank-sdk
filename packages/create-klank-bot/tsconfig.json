@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsc/.tsbuildinfo-check",
+    "types": ["node"]
+  },
+  "include": ["src/**/*", "test/**/*", "*.config.ts"]
+}

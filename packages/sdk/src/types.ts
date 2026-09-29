@@ -417,14 +417,13 @@ export interface EventsMissedEvent {
 }
 
 /**
- * Slash command delivered over the WebSocket.
- *
- * RESERVED: no released Klank server emits this yet — slash commands are
- * currently dispatched only over HTTP (see `verifySlashCommandSignature`).
- * Kept so `bot.command()` handlers compile ahead of server support.
+ * Slash command delivered over the WebSocket to the bot that owns it
+ * (`bot_id`). Emitted by Klank servers with the bot-model work; older
+ * servers never emit it.
  */
 export interface CommandInvokedEvent {
   type: 'command.invoked'
+  bot_id: string
   command: string
   text: string
   user_id: string

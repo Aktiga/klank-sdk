@@ -1,9 +1,9 @@
 /**
  * Echo bot — WebSocket events, `ctx` helpers, middleware, error handling.
  *
- * Pending server support: on Klank 53d464a a bot token authenticates and the
- * socket connects, but bots have no channel membership, so no events arrive
- * and the message routes reject bot tokens. See docs/server-requirements.md.
+ * Needs a Klank server with the bot-model work (see docs/server-requirements.md)
+ * and the bot added to a channel: `POST /api/v1/channels/{cid}/bots {"bot_id"}`
+ * with a channel-admin or workspace-admin JWT.
  *
  * Usage:
  *   SERVER_URL=http://localhost:3000 BOT_TOKEN=bot_xxx npx tsx index.ts

@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/sdk/tsconfig.build.json" },
-    { "path": "./packages/create-bot" },
+    { "path": "./packages/create-klank-bot" },
     { "path": "./examples/echo-bot-ts" },
     { "path": "./examples/ci-bot-ts" },
     { "path": "./examples/webhook-bot" }

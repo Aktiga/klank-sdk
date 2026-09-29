@@ -12,16 +12,17 @@ Node 20+. ESM only (`import`, no `require`). No runtime dependencies beyond `ws`
 
 ## Status
 
-Against Klank `53d464a` (2026-04-30). The server accepts bot tokens on two routes and has no channel-membership model for bots, so most of the interactive surface cannot do anything yet. Details in [server-requirements.md](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md).
+Against Klank `53d464a` (2026-04-30). The server accepts bot tokens on two routes — and one of those two, the WebSocket ticket, still fails on a foreign key — and it has no channel-membership model for bots, so most of the interactive surface cannot do anything yet. The server bot-model work, [Aktiga/klank PR #6](https://github.com/Aktiga/klank/pull/6) (`feat/bot-model`), closes every row marked pending below. Details in [server-requirements.md](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md).
 
 | Surface | Status |
 |---|---|
 | `WebhookBot.send` | Works. Non-E2EE channels only; a channel with an active key epoch rejects with `E2EEChannelError`. |
-| `verifySlashCommandSignature`, `parseSlashCommandPayload` | Works. They implement the server's dispatch contract, which exists in the server but has no caller yet: there is no command registration route or UI, so nothing invokes your endpoint until that lands. |
-| `KlankClient.getBotInfo`, `KlankClient.getWsTicket` | Works. |
-| `KlankClient` channel / message / reaction methods | **Pending server.** Bot tokens are not yet accepted on those routes (401). [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#1-bot-tokens-are-rejected-by-every-channelmessagereaction-route) |
-| `KlankBot` events and `ctx` helpers | **Pending server.** The socket connects; bots have no channel subscriptions, so no events arrive. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#2-bots-have-no-channel-membership-so-they-receive-zero-websocket-events-and-cannot-pass-is_member) |
-| `bot.command()` | **Pending server.** `command.invoked` is not emitted over the WebSocket. Use the HTTP slash recipe below. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#3-no-slash-command-delivery-path) |
+| `verifySlashCommandSignature`, `parseSlashCommandPayload` | Works. They implement the server's dispatch contract; on `53d464a` nothing calls it (no command registration route), the bot-model branch adds `POST /workspaces/{wid}/slash-commands` and the invoke route. |
+| `KlankClient.getBotInfo` | Works. |
+| `KlankClient.getWsTicket` | **Pending server** on `53d464a` (ticket insert violates a `users` FK); fixed on the bot-model branch. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#2-bots-have-no-channel-membership-so-they-receive-zero-websocket-events-and-cannot-pass-is_member) |
+| `KlankClient` channel / message / reaction methods | **Pending server.** Bot tokens are not yet accepted on those routes (401); the bot-model branch accepts them. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#1-bot-tokens-are-rejected-by-every-channelmessagereaction-route) |
+| `KlankBot` events and `ctx` helpers | **Pending server.** The socket connects; bots have no channel subscriptions, so no events arrive. The bot-model branch adds `bot_channel_members`, so a bot added to a channel receives that channel's events. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#2-bots-have-no-channel-membership-so-they-receive-zero-websocket-events-and-cannot-pass-is_member) |
+| `bot.command()` | **Pending server.** `command.invoked` is not emitted over the WebSocket. Use the HTTP slash recipe below. The bot-model branch registers slash commands and delivers them to the owning bot. [Details](https://github.com/Aktiga/klank-sdk/blob/main/docs/server-requirements.md#3-no-slash-command-delivery-path) |
 
 ## Quick start
 
@@ -166,7 +167,7 @@ The `event` parameter is narrowed to that variant. `off(name, handler): this` re
 
 `message(pattern: RegExp | string, handler): this` runs on `message.new` when the message's `plaintext` matches, and the handler receives `(event, ctx, matches)`. A string is compiled with `new RegExp(pattern)` — an unanchored pattern, not a literal substring: pass a `RegExp` when you want flags, and escape metacharacters if you mean them literally. Messages whose `sender_id` is the bot or one of `webhookIds` are skipped.
 
-`command(name, handler): this` registers a handler for the reserved `command.invoked` event. `ctx.respond({ responseType: 'in_channel', text })` posts to the channel; `responseType: 'ephemeral'` throws `UnsupportedError` because the server has no per-user delivery. No released server emits this event; use the HTTP recipe above.
+`command(name, handler): this` registers a handler for the `command.invoked` event. `ctx.respond({ responseType: 'in_channel', text })` posts to the channel; `responseType: 'ephemeral'` throws `UnsupportedError` because the server has no per-user delivery. A server with the bot-model work delivers an invocation over the WebSocket when the owning bot is connected, and otherwise POSTs the signed HTTP body to the command's registered `url` — so a bot that wants both paths registers this handler and the HTTP receiver above. `event.bot_id` carries the bot the command was registered against. Over the WebSocket the bot posts its own reply, so it must be a member of the channel (`ChannelMembershipError` otherwise); on the HTTP path the server posts the `in_channel` reply itself.
 
 `use(mw): this` adds middleware `(event, ctx, next)` that runs before handlers for every event; call `next()` to continue.
 
@@ -218,6 +219,53 @@ Retries: a 429 is retried up to `maxRetries` attempts in total (default 5 — th
 
 `ClientOptions`: `fetch` (global `fetch`), `maxRetries` (5), `retryBaseMs` (250).
 
+## Testing with MockKlank
+
+`@klank/sdk/testing` ships the fake server the SDK tests itself with: a real `node:http` listener plus a real `ws` server on an ephemeral port, so a `KlankBot` runs its whole REST + WebSocket path against it with nothing stubbed.
+
+```ts
+import { KlankBot } from '@klank/sdk'
+import { MockKlank } from '@klank/sdk/testing'
+import { afterEach, expect, it } from 'vitest'
+
+let mock: MockKlank
+afterEach(() => mock.close())
+
+it('replies to a message', async () => {
+  mock = await MockKlank.start()
+  const bot = new KlankBot({ token: process.env.BOT_TOKEN ?? 'bot_test', serverUrl: mock.url, reconnect: false })
+  bot.on('message', async (event, ctx) => {
+    await ctx.say(`saw ${event.plaintext}`)
+  })
+  await bot.start()
+
+  mock.deliver({
+    type: 'message.new',
+    channel_id: '…-c1',
+    message_id: '…-d1',
+    sender_id: '…-a1',
+    plaintext: 'hi',
+  })
+
+  const posted = await mock.waitForRequest((r) => r.method === 'POST' && r.path.endsWith('/messages'))
+  expect(posted.body).toMatchObject({ plaintext: 'saw hi' })
+  bot.stop()
+})
+```
+
+`MockKlank.start(options?)` serves `GET /auth/bot-info` (identity in `mock.botInfo`, override fields with `{ botInfo }`), mints single-use 30 s WebSocket tickets, and answers the message, edit, delete and reaction routes with plausible bodies. A reused, unknown or expired ticket gets a 401 and no upgrade, exactly like the server; anything unrouted gets the server's `{ error, message }` 404 envelope, and a request without a `Bearer bot_…` token gets a 401.
+
+| Member | Does |
+|---|---|
+| `url` | Origin to pass as `serverUrl`. |
+| `requests` | Every REST request in order: `{ method, path, query, headers, rawBody, body }`. |
+| `sockets` | WebSocket connections currently open. |
+| `deliver(event)` | JSON-encode an event and push it to every open socket. |
+| `waitForRequest(match, timeoutMs = 2000)` | First matching request, past or future; rejects on timeout. |
+| `waitForSocket(timeoutMs = 2000)` | Resolves once the bot's socket is up. |
+| `respond(method, path, handler)` | Override a route (exact pathname or `RegExp`); newest wins. Use it to test error paths: return `{ status: 403, body: { error: 'Forbidden', message: 'Not a member of this channel' } }` and the bot sees `ChannelMembershipError`. |
+| `close()` | Terminate sockets, close the listener. |
+
 ## Errors
 
 Everything thrown by the SDK extends `KlankError`, which carries `code`, and for server responses `status` and `body` (the parsed `{ error, message }` envelope, or raw text).
@@ -267,7 +315,7 @@ Every frame is JSON text `{ "type": "<name>", ...fields }`. Field names are snak
 | Emoji | `emoji.created`, `emoji.deleted` |
 | Import | `import.progress` |
 | Huddles | `huddle.started`, `huddle.participant_joined`, `huddle.participant_left`, `huddle.ended` |
-| Sentinels | `events.missed` (`{ count }`: this socket fell behind the broadcast; treat cached state as stale and re-fetch over REST), `command.invoked` (reserved; not emitted by any released server) |
+| Sentinels | `events.missed` (`{ count }`: this socket fell behind the broadcast; treat cached state as stale and re-fetch over REST), `command.invoked` (emitted to the owning bot; see `bot.command()`) |
 
 `message.new` carries `plaintext` for bot and plaintext messages and `ciphertext`/`nonce`/`key_epoch` for E2EE messages, which a bot cannot decrypt. Use `EventOf<'message.new'>` (or the named interfaces such as `MessageNewEvent`) to type handlers outside `bot.on`.
 
@@ -281,7 +329,7 @@ Register with a user JWT: `POST /api/v1/workspaces/{workspaceId}/bots` `{"name":
 
 ## Channel membership
 
-Every channel, message, and reaction route requires the caller to be a channel member; non-members get 403 `Not a member of this channel` (`ChannelMembershipError`). Adding a bot as a member is part of the pending server work, which is why `KlankClient` message methods and `KlankBot` events do not function yet.
+Every channel, message, and reaction route requires the caller to be a channel member; non-members get 403 `Not a member of this channel` (`ChannelMembershipError`). A bot is added to a channel with `POST /api/v1/channels/{channelId}/bots` `{"bot_id":"…"}`, called with a user JWT by a channel member who is a channel admin or a workspace owner/admin (never for DMs), and removed with `DELETE /api/v1/channels/{channelId}/bots/{botId}`; `GET /api/v1/channels/{channelId}/bots` lists a channel's bots for any member. Those routes are part of the server bot-model branch, which is why `KlankClient` message methods and `KlankBot` events do not function against `53d464a`.
 
 ## Security
 

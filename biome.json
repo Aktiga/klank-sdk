@@ -45,6 +45,12 @@
       "formatter": {
         "enabled": false
       }
+    },
+    {
+      "include": ["packages/sdk/fixtures/**"],
+      "formatter": {
+        "enabled": false
+      }
     }
   ]
 }

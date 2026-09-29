@@ -6,6 +6,16 @@ Cross-repo handoff for [Aktiga/klank](https://github.com/Aktiga/klank) (issues a
 
 Verified against `main` @ 53d464a (2026-04-30).
 
+## Status (2026-09-09)
+
+Server work is on [Aktiga/klank PR #6](https://github.com/Aktiga/klank/pull/6) (`feat/bot-model`), which closes everything below.
+
+- `bot_channel_members(channel_id, bot_id, added_by, joined_at)`, `ChannelService::is_member` unioning user and bot membership, and the FK relaxations on `ws_tickets.user_id` and `reactions.user_id`; `POST /api/v1/channels/{cid}/bots`, `DELETE /api/v1/channels/{cid}/bots/{bid}`, `GET /api/v1/channels/{cid}/bots`, hub subscribe/unsubscribe on add and remove, and `channel.member_joined` / `channel.member_left` published for the bot. Closes §2.
+- The channel, message, thread and reaction routes take `BotOrUser`, and a bot's `GET /workspaces/{wid}/channels` lists only the channels it belongs to. Closes §1.
+- Slash-command registration and invocation, delivered as `ServerEvent::CommandInvoked { bot_id, command, text, user_id, channel_id, workspace_id }` over the owning bot's WebSocket when it is connected, with the existing signed HTTP dispatch as the fallback. Closes §3.
+
+§4's fixture ask is answered too: a server test emits `fixtures/wire/server-events.json` (one serialized sample per wire event) and the SDK pulls it in with `scripts/sync-wire-fixtures.sh`, where `packages/sdk/test/wire-fixtures.test.ts` diffs it against the `ServerEvent` union.
+
 ## 1. Bot tokens are rejected by every channel/message/reaction route
 
 - `crates/rs-api/src/auth_middleware.rs`: `BotOrUser` (accepts `bot_…` or JWT) is used only by `GET /auth/bot-info` and `POST /auth/bot-ws-ticket` (`handlers/auth.rs`).
@@ -18,6 +28,7 @@ Needed: bot-capable routes take `BotOrUser`; membership/role checks resolve for 
 - `channel_members.user_id` and `workspace_members.user_id` FK → `users(id)` (`crates/rs-db/migrations/20260317000001_initial_schema.sql`); no later migration relaxes this. A bot id cannot be inserted, so `POST /channels/{id}/members {"user_id": "<bot_id>"}` fails the FK.
 - `handlers/ws.rs::ws_upgrade` pre-subscribes via `SELECT channel_id FROM channel_members WHERE user_id = $1` and `workspace_members` — both empty for a bot id → `hub.user_connected(bot_id, [], [])` → `should_send_to_user` (`rs-realtime/src/connection.rs`) filters every channel- and workspace-scoped event. The bot socket connects and stays silent forever.
 - `reactions.user_id` FK → `users(id)`, so bot reactions also need schema work.
+- `ws_tickets.user_id` FK → `users(id)` as well, so `POST /auth/bot-ws-ticket` — one of the two routes that does accept a bot token — fails on insert for every bot: a bot can authenticate and still never open a socket.
 
 Options (product call needed):
 - (a) Spec §3: bots implicitly subscribe to **all** workspace channels on connect. Simplest; leaks private channels and DMs to any workspace bot.
@@ -41,7 +52,8 @@ Needed: a `slash_commands` table (workspace_id, command, url, signing_secret_has
 
 ## Acceptance (what the SDK integration test will do)
 
-1. Create bot → add bot to channel via `POST /channels/{id}/members` → bot token `POST /channels/{id}/messages {plaintext}` returns 201.
+1. Create bot → add bot to channel via `POST /channels/{id}/bots` → bot token `POST /channels/{id}/messages {plaintext}` returns 201.
 2. Bot WS receives `message.new` for that channel; does **not** receive events from channels it is not a member of.
 3. Bot token `POST /messages/{id}/reactions` returns 201 and emits `reaction.added`.
 4. Slash command `/echo hi` reaches the bot (HTTP or WS) with a verifiable signature; bot's `in_channel` response appears in the channel.
+5. `POST /auth/bot-ws-ticket` returns 200 for a bot token (was a 500 FK violation).

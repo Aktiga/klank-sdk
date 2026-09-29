@@ -622,6 +622,7 @@ describe('KlankBot error handling', () => {
 describe('KlankBot slash commands', () => {
   const command: CommandInvokedEvent = {
     type: 'command.invoked',
+    bot_id: BOT_ID,
     command: '/deploy',
     text: 'staging',
     user_id: USER_ID,
