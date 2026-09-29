@@ -1,6 +1,6 @@
 {
   "name": "create-klank-bot",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Scaffold a Klank bot project: npm create klank-bot",
   "type": "module",
   "bin": {
